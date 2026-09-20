@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import Hero from '../components/sections/Hero'
 import ArticleSection from '../components/sections/ArticleSection'
 import BenefitsSection from '../components/sections/BenefitsSection'
@@ -7,15 +8,23 @@ import ChecklistSection from '../components/sections/ChecklistSection'
 import SimulatorSection from '../components/sections/SimulatorSection'
 import FaqSection from '../components/sections/FaqSection'
 import { useIdecoRules } from '../hooks/useIdecoRules'
-import { faqItems } from '../data/faqItems'
+import { fetchFaqItems } from '../api/faq'
+import type { Faq } from '../api/microcms'
 
 // 制度データはここで1回だけ取得し、必要なセクションにpropsとして渡す。
 function HomePage() {
   const { data, isLoading, error } = useIdecoRules()
 
+  const [faqItems, setFaqItems] = useState<Faq[]>([])
+
+  useEffect(() => {
+    fetchFaqItems().then(setFaqItems)
+  }, [])
+
   return (
     <>
       <Hero />
+
       <ArticleSection
         id="about-ideco"
         title="iDeCoとは"
@@ -25,11 +34,32 @@ function HomePage() {
           '原則として60歳になるまで、積み立てた資産を引き出すことはできません。',
         ]}
       />
+
       <BenefitsSection id="benefits" />
-      <ReformSection id="reform" data={data} isLoading={isLoading} error={error} />
-      <ComparisonSection id="comparison" data={data} isLoading={isLoading} error={error} />
+
+      <ReformSection
+        id="reform"
+        data={data}
+        isLoading={isLoading}
+        error={error}
+      />
+
+      <ComparisonSection
+        id="comparison"
+        data={data}
+        isLoading={isLoading}
+        error={error}
+      />
+
       <ChecklistSection id="checklist" />
-      <SimulatorSection id="simulator" data={data} isLoading={isLoading} error={error} />
+
+      <SimulatorSection
+        id="simulator"
+        data={data}
+        isLoading={isLoading}
+        error={error}
+      />
+
       <FaqSection id="faq" items={faqItems} />
     </>
   )
