@@ -23,7 +23,12 @@ function FaqItem({ question, answer }: FaqItemProps) {
         </span>
         <span className="faq-icon" aria-hidden="true" />
       </button>
-      {isOpen && <p className="faq-answer">{answer}</p>}
+      {isOpen && (
+        <div
+          className="faq-answer"
+          dangerouslySetInnerHTML={{ __html: answer }}
+        />
+      )}      
     </div>
   )
 }

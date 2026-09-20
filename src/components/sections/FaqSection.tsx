@@ -1,11 +1,11 @@
 import SectionHeading from '../common/SectionHeading'
 import FaqItem from '../common/FaqItem'
-import type { FaqItemData } from '../../data/faqItems'
+import type { Faq } from '../../api/microcms'
 import './FaqSection.css'
 
 interface FaqSectionProps {
   id?: string
-  items: FaqItemData[]
+  items: Faq[]
 }
 
 function FaqSection({ id, items }: FaqSectionProps) {
