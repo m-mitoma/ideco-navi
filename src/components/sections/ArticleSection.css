@@ -1,0 +1,7 @@
+.article-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 70ch;
+  color: var(--color-text);
+}

@@ -1,0 +1,162 @@
+:root {
+  --color-navy-900: #10233f;
+  --color-navy-700: #1d3f66;
+  --color-teal-600: #0f7a68;
+  --color-teal-700: #0c6a5a;
+  --color-teal-50: #e7f4f1;
+  --color-bg: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-border: #dee2e7;
+  --color-text: #1b2430;
+  --color-text-muted: #5c6472;
+  --color-amber-600: #ad6e15;
+  --color-amber-50: #fbf1e2;
+
+  --font-heading: "Zen Kaku Gothic New", "Noto Sans JP", sans-serif;
+  --font-body: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+
+  --space-1: 8px;
+  --space-2: 12px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --space-7: 64px;
+  --space-8: 96px;
+
+  --radius: 4px;
+  --radius-lg: 8px;
+
+  --content-max-width: 1080px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 72px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+#root main {
+  flex: 1;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--color-navy-900);
+  margin: 0;
+  line-height: 1.5;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--color-teal-600);
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font-family: inherit;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* レイアウト共通のユーティリティ */
+.container {
+  max-width: var(--content-max-width);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+.section {
+  padding-block: var(--space-7);
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding-block: var(--space-5);
+  }
+}
+
+/* ボタン共通スタイル（Buttonコンポーネント & Linkの両方で使用） */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding-inline: 26px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font-weight: 700;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--color-teal-600);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--color-teal-700);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-navy-700);
+  border-color: var(--color-navy-700);
+}
+
+.btn-secondary:hover {
+  background: var(--color-teal-50);
+}
+
+.btn:disabled {
+  background: var(--color-border);
+  color: #93999f;
+  cursor: not-allowed;
+}

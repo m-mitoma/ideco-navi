@@ -1,0 +1,95 @@
+{
+  "sources": [
+    {
+      "name": "厚生労働省「確定拠出年金制度の拠出限度額」",
+      "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/nenkin/nenkin/kyoshutsu/taishousha.html"
+    },
+    {
+      "name": "厚生労働省「確定拠出年金制度の概要」",
+      "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/nenkin/nenkin/kyoshutsu/gaiyou.html"
+    },
+    {
+      "name": "iDeCo公式サイト（国民年金基金連合会）「iDeCoのメリット」",
+      "url": "https://www.ideco-koushiki.jp/guide/good.html"
+    },
+    {
+      "name": "iDeCo公式サイト（国民年金基金連合会）「iDeCoの特徴」",
+      "url": "https://www.ideco-koushiki.jp/guide/"
+    }
+  ],
+  "currentRules": {
+    "label": "現在の制度（令和6・2024年12月〜）",
+    "effectiveFrom": "2024-12-01",
+    "categories": [
+      {
+        "id": "self-employed",
+        "group": "self-employed",
+        "label": "第1号被保険者（自営業者・フリーランス等）",
+        "monthlyLimit": 68000,
+        "note": "国民年金基金等との合算枠です。"
+      },
+      {
+        "id": "employee-no-pension",
+        "group": "employee-no-pension",
+        "label": "会社員（企業型DC・DBなどの企業年金に加入していない）",
+        "monthlyLimit": 23000,
+        "note": ""
+      },
+      {
+        "id": "employee-with-pension",
+        "group": "employee-with-pension",
+        "label": "会社員（企業型DCまたはDBなどの企業年金に加入している）",
+        "monthlyLimit": 20000,
+        "note": "事業主の掛金相当額との合計が月5.5万円以内であることが必要です。"
+      },
+      {
+        "id": "dependent-spouse",
+        "group": "dependent-spouse",
+        "label": "第3号被保険者（専業主婦・夫）",
+        "monthlyLimit": 23000,
+        "note": ""
+      }
+    ]
+  },
+  "futureRules": {
+    "label": "2026年12月1日以降の制度（令和8年12月〜）",
+    "effectiveFrom": "2026-12-01",
+    "categories": [
+      {
+        "id": "self-employed",
+        "group": "self-employed",
+        "label": "第1号・第4号加入者（自営業者・フリーランス等）",
+        "monthlyLimit": 75000,
+        "note": "iDeCo・国民年金基金等の合計。現行から0.7万円の増額です。"
+      },
+      {
+        "id": "employee-with-pension",
+        "group": "employee-with-pension",
+        "label": "第2号加入者（企業型DCまたはDBなどの企業年金がある会社員）",
+        "monthlyLimit": 62000,
+        "note": "iDeCoと企業年金等の合計。DBには拠出限度額の定めがなく、企業年金の掛金相当額を差し引いた分がiDeCoの拠出可能額の目安になります。"
+      },
+      {
+        "id": "employee-no-pension",
+        "group": "employee-no-pension",
+        "label": "第2号加入者（企業年金がない会社員）",
+        "monthlyLimit": 62000,
+        "note": "現行から3.9万円の増額です。"
+      },
+      {
+        "id": "dependent-spouse",
+        "group": "dependent-spouse",
+        "label": "第3号加入者（専業主婦・夫）",
+        "monthlyLimit": 23000,
+        "note": "現行から変更はありません。"
+      },
+      {
+        "id": "senior",
+        "group": "senior",
+        "label": "第5号加入者（60歳以上70歳未満向けに新設）",
+        "monthlyLimit": 62000,
+        "note": "iDeCoと企業年金等の合計。新しく設けられる区分です。"
+      }
+    ]
+  }
+}

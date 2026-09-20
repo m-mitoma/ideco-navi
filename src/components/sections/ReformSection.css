@@ -1,0 +1,84 @@
+.reform-intro {
+  max-width: 70ch;
+  color: var(--color-text);
+  margin-bottom: var(--space-5);
+}
+
+.reform-subheading {
+  font-size: 15px;
+  margin-bottom: var(--space-3);
+}
+
+.reform-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.reform-card {
+  background: var(--color-teal-50);
+  border-color: var(--color-teal-600);
+}
+
+.reform-card-label {
+  font-size: 13.5px;
+  color: var(--color-text);
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.reform-card-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-navy-900);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 6px;
+}
+
+.reform-card-note {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.reform-other-list {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.reform-other-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 12px var(--space-4);
+  font-size: 13.5px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.reform-other-list li:last-child {
+  border-bottom: none;
+}
+
+.reform-other-label {
+  color: var(--color-text);
+}
+
+.reform-other-value {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 600px) {
+  .reform-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reform-other-list li {
+    flex-direction: column;
+    gap: 2px;
+  }
+}
