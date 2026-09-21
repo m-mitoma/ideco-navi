@@ -109,7 +109,12 @@ React Routerを利用して複数ページをSPAとして構成しています�
 - microcms-js-sdk
 - Git
 - GitHub
+- GitHub Actions
 - Vercel
+- ESLint
+- Prettier
+- Vitest
+- React Testing Library
 
 ## Reactで使用している主な機能
 
@@ -170,6 +175,23 @@ Tailwind CSS（v4.3.3）を導入し、既存のCSS構成を整理しました�
 - フォーカス表示など、キーボード操作を考慮したアクセシビリティ対応を実施
 - 既存のCSSとTailwind CSSを整理しながら、既存機能はそのまま維持
 
+### コード品質・テストの整備
+
+ESLint・Prettierを導入し、コードの静的解析とフォーマットを統一しました。
+
+- ESLintはTypeScript 7系との互換性の都合により、対象をJavaScript/JSXファイルに限定
+- TypeScript固有の型チェックは既存の`tsc -b`が担う構成のまま維持
+- Prettierでコードスタイル（セミコロンなし・シングルクォートなど）を統一
+
+Vitest・React Testing Libraryを導入し、主要な計算ロジックとUIの動作をテストコードで確認できる状態にしました。
+
+- 退職所得控除シミュレーター・iDeCo掛金シミュレーターの計算ロジック
+- 入力値のバリデーション
+- 計算結果やエラー表示などのUI
+- microCMSなどAPIに依存する処理は`fetch`をモックして検証し、実際のAPIには依存しない構成
+
+GitHub Actionsを導入し、mainへのpushおよびPull Requestのタイミングでlint・test・buildを自動実行するCIを構築しました。
+
 ## 制作における役割
 
 ### 自分
@@ -220,6 +242,4 @@ iDeCoへの加入や掛金について個別の金融アドバイスを行うも
 
 - Heroビジュアルの追加・調整
 - UI/UXのブラッシュアップ
-- レスポンシブ対応の確認・調整
-- テストコードの追加
 - READMEの最終整理
