@@ -94,8 +94,7 @@ export function formatManYen(amountInYen: number): string {
 
 // 「重複期間の調整」で使う考え方: 前に受け取った退職手当等の額が、
 // その期間本来の控除額（40万円×年数）を下回るときは、実際に受け取った額に
-// 相当する年数（＝退職手当等の額 ÷ 40万円、端数切り上げ、最低2年）を重複期間の計算に使う。
+// 相当する年数（＝退職手当等の額 ÷ 40万円、1年未満の端数は切り捨て）を重複期間の計算に使う。
 export function calculateEquivalentYears(priorPaymentAmount: number): number {
-  const rawYears = Math.ceil(priorPaymentAmount / SHORT_TERM_UNIT_AMOUNT)
-  return Math.max(rawYears, 2)
+  return Math.floor(priorPaymentAmount / SHORT_TERM_UNIT_AMOUNT)
 }
