@@ -26,25 +26,13 @@ iDeCoという制度の名前は知っているものの自身の掛金上限や
 
 ## 開発工程
 
-2026/9/20 10:00頃から9/21にかけて制作した開発工程です。
-
 ![開発工程](docs/development-process/ideco-navi-development-process.png)
 
 ## サイト構成
 
-サイト全体の構成は以下の図の通りです。FAQはmicroCMSで管理しています。
+サイト全体の構成は以下の図の通りです。
 
 ![サイト構成図](docs/site-structure/site-structure.png)
-
-## 主なコンテンツ
-
-- iDeCoの基本
-- iDeCoの税制上のメリット
-- 2026年12月からの制度改正
-- 現行制度と改正後の比較
-- 会社員が確認しておきたいポイント
-- 掛金シミュレーション
-- FAQ
 
 ## 主な機能
 
@@ -88,25 +76,7 @@ iDeCoの一時金を受け取る際に関係する退職所得控除について
 iDeCoの基本や会社員の加入条件
 企業型DCとの関係2026年12月からの制度改正などについて整理しています。
 
-FAQのコンテンツはmicroCMSで管理しReactからAPI経由で取得して画面に表示しています。
-
 microCMS側でFAQを追加・変更することでフロントエンドのコードを変更せずにコンテンツを更新できる構成としています。
-
-### APIによるデータ取得
-
-制度データやFAQなどのデータ取得処理とUIを分離しています。
-
-制度データはAPIから取得しローディング中やエラー発生時の表示も実装しています。
-
-FAQについてはmicroCMSのAPIを利用しmicrocms-js-sdkを使用してデータを取得しています。
-
-### SPA
-
-React Routerを利用して複数ページをSPAとして構成しています。
-
-- `/`
-- `/about`
-- `/retirement-deduction`
 
 ## 使用技術
 
@@ -152,15 +122,10 @@ React Routerを利用して複数ページをSPAとして構成しています�
 
 ## CMS連携
 
-FAQコンテンツの管理にmicroCMSを使用しています。
-
-React側ではmicrocms-js-sdkを利用してmicroCMS APIからFAQデータを取得し
-取得したデータをReactコンポーネントに渡して表示しています。
-
 API取得処理と画面表示を分離することで
 CMSで管理するコンテンツとフロントエンドのUIを分けた構成としています。
 
-またmicroCMSのリッチテキスト形式で登録したFAQの回答を
+microCMSのリッチテキスト形式で登録したFAQの回答を
 HTMLとして画面に表示しています。
 
 ## 制作方針
@@ -206,8 +171,6 @@ Vitest・React Testing Libraryを導入し、主要な計算ロジックとUIの
 - 入力値のバリデーション
 - 計算結果やエラー表示などのUI
 - microCMSなどAPIに依存する処理は`fetch`をモックして検証し、実際のAPIには依存しない構成
-
-GitHub Actionsを導入し、mainへのpushおよびPull Requestのタイミングでlint・test・buildを自動実行するCIを構築しました。
 
 ## 制作における役割
 
