@@ -1,9 +1,9 @@
 # Design Guideline
 
 会社員向け iDeCo新制度ガイド（`ideco-navi`）のデザインガイドラインです。
-[docs/wireframe.md](./wireframe.md) で整理した情報設計・画面構成・優先順位を前提とし、現在実装済みの `src/index.css` および各コンポーネントCSSを確認したうえで、そこに存在するルールを言語化・体系化したものです。既存デザインの方向性を否定するものではなく、今後CSSをブラッシュアップする際に一貫性を保つための土台として作成しています。
+[docs/wireframe.md](./wireframe.md) で整理した情報設計・画面構成・優先順位を前提とし、実装済みの `src/index.css` および各コンポーネントCSSを確認したうえで、そこに存在するルールを言語化・体系化したものです。既存デザインの方向性を否定するものではなく、CSSの一貫性を保つための土台として作成しています。
 
-このドキュメントの作成にあたり、実装は一切変更していません。
+その後、このガイドラインに沿ってTailwind CSS（v4）を導入し、デザイントークンの一元管理・remベースのタイポグラフィ・`clamp()`によるレスポンシブな見出し/結果表示・共通パーツの整理・`:focus-visible`によるアクセシビリティ改善を実装しました。本ドキュメントはその実装内容を反映した最新版です（実装の詳細は「13. CSS Implementation Principles」参照）。
 
 ---
 
@@ -28,9 +28,9 @@
 
 ## 2. Color
 
-現在 `src/index.css` の `:root` に定義済みのカラートークンをそのまま採用し、意味的な役割名（semantic name）を対応づける。**新しい色を大量に追加せず、既存の2トーン（ネイビー／ティール）＋グレースケール＋アンバーの構成を維持する。**
+`src/index.css` の Tailwind `@theme` ブロックでデザイントークンを一元管理している。既存コンポーネントCSSが参照していた変数名（`--color-navy-900` 等）は `:root` でこれらへのエイリアスとして残し、値の定義元を1箇所にまとめた（二重管理の回避）。**新しい色は追加せず、既存の2トーン（ネイビー／ティール）＋グレースケール＋アンバーの構成をそのままトークン化している。**
 
-| 役割 | 提案する変数名 | 値 | 対応する既存トークン |
+| 役割 | 変数名（`@theme`） | 値 | 旧トークン名（`:root`のエイリアス） |
 |---|---|---|---|
 | Primary Color | `--color-primary` | `#10233f` | `--color-navy-900`（見出し、Header/Footer背景） |
 | Secondary Color | `--color-secondary` | `#1d3f66` | `--color-navy-700`（サブ見出し、セカンダリボタンの線・文字） |
@@ -38,13 +38,15 @@
 | Accent Hover | `--color-accent-hover` | `#0c6a5a` | `--color-teal-700` |
 | Accent Tint | `--color-accent-tint` | `#e7f4f1` | `--color-teal-50`（強調パネル・バッジ背景） |
 | Background Color | `--color-background` | `#f6f7f9` | `--color-bg`（ページ全体の背景） |
-| Surface Color | `--color-surface` | `#ffffff` | `--color-surface`（カード・フォーム・Header内の背景等） |
-| Text Color | `--color-text` | `#1b2430` | `--color-text` |
-| Muted Text Color | `--color-text-muted` | `#5c6472` | `--color-text-muted`（補足・キャプション） |
-| Border Color | `--color-border` | `#dee2e7` | `--color-border` |
-| Error Color | `--color-error` | `#ad6e15` | `--color-amber-600`（現状、注意喚起と入力エラーを同じ色で表現） |
+| Surface Color | `--color-surface` | `#ffffff` | 同名（エイリアス不要） |
+| Text Color | `--color-text` | `#1b2430` | 同名（エイリアス不要） |
+| Muted Text Color | `--color-muted` | `#5c6472` | `--color-text-muted`（補足・キャプション） |
+| Border Color | `--color-border` | `#dee2e7` | 同名（エイリアス不要） |
+| Error Color | `--color-error` | `#ad6e15` | `--color-amber-600`（注意喚起と入力エラーを同じ色で表現） |
 | Error Background | `--color-error-tint` | `#fbf1e2` | `--color-amber-50` |
-| Success Color | `--color-success` | `#0f7a68` | 未実装。Accent Colorを流用する案（下記参照） |
+| Success Color | 未実装 | `#0f7a68`（Accent Colorを流用する案） | 下記「設計判断のメモ」参照 |
+
+`@theme` で定義したトークンはTailwindのユーティリティクラス（`bg-primary` `text-accent` `border-error` 等）としても利用可能になっているが、現時点では既存コンポーネントCSS側の書き換えは行っておらず、実際のJSXでの利用実績はない（トークン層としての導入にとどまる）。
 
 ### 設計判断のメモ
 
@@ -66,19 +68,19 @@
 ```
 見出し・本文ともにゴシック体で統一し、30〜50代の会社員が読む「実務的な情報サイト」として違和感のない書体を維持する。
 
-### type scale（rem換算・現状の実装値を踏襲）
-ルートのフォントサイズはブラウザ既定の`16px`を基準とする（`html`に独自の`font-size`指定はない）。本文は現状`15px`のため`0.9375rem`となる。
+### type scale（rem実装済み）
+ルートのフォントサイズはブラウザ既定の`16px`を基準とする（`html`に独自の`font-size`指定はない）。全CSSファイルの`font-size`をpx指定からrem指定に変換済み（本文は`0.9375rem`＝15px相当）。
 
-| 用途 | 現状（px） | rem換算 | 備考 |
+| 用途 | rem値 | px換算 | 備考 |
 |---|---|---|---|
-| H1（ページ主見出し） | 32px / 24〜26px（モバイル） | `2rem` / `1.5rem` | `clamp()`化を推奨（後述） |
-| H2（`.section-heading`） | 24px / 20px（〜600px） | `1.5rem` / `1.25rem` | |
-| H3（サブ見出し） | 16〜18px | `1rem`〜`1.125rem` | |
-| リード文 | 16px | `1rem` | Hero・ページ紹介文 |
-| 本文 | 15px | `0.9375rem` | `line-height: 1.8` |
-| 結果の強調数値 | 32px | `2rem` | `.result-value` 系 |
-| ラベル・小見出し | 13〜13.5px | `0.8125rem` | フォームラベル、`result-label` |
-| キャプション・注意書き | 11.5〜12.5px | `0.75rem`前後 | フッター免責文、`result-note` |
+| H1（ページ主見出し） | `clamp(1.5rem, 1.2rem + 1.5vw, 2rem)` | 24〜32px | Hero・退職所得控除ページの見出しで`clamp()`実装済み（後述） |
+| H2（`.section-heading`） | `clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem)` | 20〜24px | 同上 |
+| H3（サブ見出し） | `1rem`〜`1.125rem` | 16〜18px | |
+| リード文 | `1rem` | 16px | Hero・ページ紹介文 |
+| 本文 | `0.9375rem` | 15px | `line-height: 1.8` |
+| 結果の強調数値 | `clamp(1.5rem, 1.3rem + 1vw, 2rem)` | 24〜32px | `.result-value`（`src/index.css`で共通化、両シミュレーターで使用） |
+| ラベル・小見出し | `0.8125rem` | 13px | フォームラベル、`result-label` |
+| キャプション・注意書き | `0.71875rem`〜`0.78125rem` | 11.5〜12.5px | フッター免責文、`result-note` |
 
 ### line-height
 - 本文（`body`）：`1.8`（既存踏襲。制度説明の長文でも読みやすい行間を維持）
@@ -95,16 +97,21 @@
 - 見出し：指定なし（既定のまま）でよい
 - バッジ・アイコン的な短いラベル（`.hero-eyebrow`など）：`0.04em`程度の字間を既に使用しており、今後もこの用途に限定して使う
 
-### clamp()の活用（今後の改善提案）
-現状H1は`768px`未満で32px→26px→24pxとブレークポイントごとに切り替わる実装になっている。段差を滑らかにするため、以下のような`clamp()`化を検討できる（**今回のガイドライン作成では未実装・提案のみ**）。
+### clamp()の活用（実装済み）
+ブレークポイントごとの段差ではなく、画面幅に応じて滑らかにサイズが変化するよう、以下の3箇所に`clamp()`を実装済み。
 
 ```css
-/* 提案例：H1 */
-font-size: clamp(1.5rem, 1.15rem + 1.6vw, 2rem);
+/* Hero見出し（Hero.css）、退職所得控除ページの見出し（RetirementDeductionPage.css） */
+font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
 
-/* 提案例：結果表示の強調数値 */
-font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+/* セクション見出し H2（SectionHeading.css） */
+font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+
+/* シミュレーター結果の強調数値（index.css .result-value） */
+font-size: clamp(1.5rem, 1.3rem + 1vw, 2rem);
 ```
+
+導入に伴い、上記3箇所にあった「`600px`未満でH1/H2のfont-sizeを固定値に切り替える」個別のメディアクエリは削除した（`clamp()`側で吸収されるため）。
 
 ---
 
@@ -169,11 +176,11 @@ font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
 | Card | `grid-template-columns: repeat(3,1fr)`等 | `1fr` | `1fr` |
 | Form | ラベル＋入力欄を2カラムの片側に配置 | 同上（グリッド自体は1カラムだが個々のフォームは元々縦積み） | 入力欄幅100%、ボタンも`width:100%` |
 | Button | 内容に応じた可変幅 | 同左 | Hero内のCTAのみ縦積み＋幅100% |
-| Typography | H1: 32px, H2: 24px | 同左（600pxを超えるため縮小前） | 600pxでH1:26px前後・H2:20pxに縮小 |
+| Typography | H1: 32px, H2: 24px（`clamp()`上限） | 画面幅に応じて連続的に縮小 | H1: 24px、H2: 20px（`clamp()`下限）付近まで連続的に縮小 |
 | Section spacing | `padding-block: 64px` | 768px未満のため`padding-block: 32px`に切り替わる | 同左（32px） |
 
 ### 今後の改善候補
-- Tablet帯（600〜767px）は「グリッドは1カラムだが文字は大きいまま」という中間状態になる。意図的な設計だが、今後より細かく調整する場合はこの帯域向けの調整余地がある。
+- H1・H2・結果の強調数値は`clamp()`化により、Tablet帯を含めて画面幅に応じた連続的なサイズ変化になった。一方でGrid（カード・フォームの列数）は引き続き768px単独のブレークポイントで切り替わるため、「Tablet帯はグリッドが1カラムになった直後」という体感はまだ残る。意図的な設計だが、今後より細かく調整する場合はこの帯域向けの調整余地がある。
 
 ---
 
@@ -187,7 +194,7 @@ font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
 - 背景：Primary Color（`--color-navy-900`）、文字は白〜`rgba(255,255,255,.75)`
 - Border：下端に`1px solid rgba(255,255,255,.08)`
 - Hover：ナビリンクは`rgba(255,255,255,.75)`→`#fff`
-- Focus：ブラウザ標準のフォーカスリングに依存（現状カスタムfocus-visibleスタイルはなし。9章で改善提案）
+- Focus：`:focus-visible`でAccent Colorの2pxアウトライン（`src/index.css`にグローバル定義、9章参照）
 - Active（現在地）：下線（`border-bottom: 2px solid var(--color-accent)`）＋文字色`#fff`
 
 ### Footer
@@ -230,9 +237,10 @@ font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
 ### Form / Input / Select
 - ラベル：入力欄の直上に配置、13px・700・Text Color
 - 入力欄：高さ44px、`border: 1px solid var(--color-border)`、`border-radius: var(--radius)`、内側左右`12px`
-- Focus：`outline: 2px solid var(--color-accent); outline-offset: 1px`（キーボード操作・視覚の両方で分かりやすい太さを確保）
+- Focus：Header等と同じグローバルな`:focus-visible`（Accent Colorの2pxアウトライン）で統一。以前は入力欄ごとに個別定義していたfocusスタイルは重複のため削除し、グローバル定義に一本化した
 - チェックボックス：`width/height: 18px`、`accent-color: var(--color-accent)`
 - 説明文（`.field-hint`）：入力欄の下に11.5px・Muted Text Colorで補足（例：「年収は税制メリットの概算にのみ使用」）
+- `.field` `.field-hint`は掛金シミュレーション・退職所得控除シミュレーターの両方で使う共通クラスとして`src/index.css`に集約済み（コンポーネント個別CSSでの重複定義を解消）
 
 ### Error message
 - 色：Error Color（アンバー系）、背景`--color-error-tint`
@@ -247,6 +255,7 @@ font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
 
 ### Result display（結果表示）
 - 「11. Data / Result Display」に詳細を記載。共通ルールとして、強調カード＋内訳（`dl`のdt/dd）＋注意書きの3点セットを崩さない
+- `.result-value`（強調数値）・`.result-breakdown` / `.result-breakdown-row`（内訳テーブル）・`.result-label` `.result-note`は`src/index.css`の共通クラスとして実装済み。掛金シミュレーション・退職所得控除シミュレーターの両方が同じクラス名を参照しており、見た目のズレが起きない構成になっている
 
 ### FAQ（`FaqItem` / `FaqSection`）
 - 一覧はカード化せず、`border-bottom`区切りのフラットなリスト
@@ -281,7 +290,7 @@ font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
 WCAGの考え方を参考にしつつ、過剰に複雑な独自ルールは設けない。
 
 - **コントラスト**：本文（`--color-text` #1b2430）と背景（`--color-background` #f6f7f9 / `--color-surface` #fff）はWCAG AA基準を満たす濃さを確保済み。Muted Text Color（`#5c6472`）も背景白地でAA相当を確保。今後新しい配色を追加する際は、本文サイズでコントラスト比4.5:1以上を目安にする
-- **Focus表示**：フォーム要素には`outline: 2px solid var(--color-accent)`を実装済み。Header/Footerのリンクやボタンにはブラウザ標準のフォーカスリング以上の独自スタイルがないため、**キーボード操作時の視認性向上のため、リンク・ボタン全般への`:focus-visible`スタイル追加を今後の改善候補とする**
+- **Focus表示**：`a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible`にAccent Colorの2pxアウトラインをグローバルに実装済み（`src/index.css`）。マウス/タップ操作では表示されず、キーボード操作時のみ表示される。Header/Footerのリンクを含むサイト全体のリンク・ボタン・入力欄で統一済み
 - **キーボード操作**：FAQの開閉・シミュレーターの入力・ページ遷移はすべて標準的な`<button>` `<a>` `<input>`要素で実装されており、追加のJS制御なしにTab操作・Enter操作が可能
 - **Form label**：すべての入力に`<label htmlFor>`を対応付け済み（例：`sim-age` `rd-years`）。チェックボックスもラベルで囲み、クリック領域を広げている
 - **Error message**：`role="alert"`を使用し、視覚的な色（アンバー）だけでなく「入力エラー：」というテキストで明示。入力欄には`aria-describedby`でエラー文言を関連付け済み
@@ -310,7 +319,7 @@ WCAGの考え方を参考にしつつ、過剰に複雑な独自ルールは設�
 
 シミュレーション結果は「数字だけを大きく見せて終わり」にしないことを最重要ルールとする。
 
-- **結果の強調**：結果カードの背景をAccent Tint（`--color-accent-tint`）にし、枠線をAccent Colorにすることで、他のカードと視覚的に区別する（影は使わない）
+- **結果の強調**：結果カードの背景をAccent Tint（`--color-accent-tint`）にし、枠線をAccent Colorにすることで、他のカードと視覚的に区別する（影は使わない）。強調数値のfont-sizeは`clamp(1.5rem, 1.3rem + 1vw, 2rem)`（`.result-value`、`src/index.css`）とし、画面幅に応じて滑らかに変化する
 - **金額表示**：円単位は`toLocaleString()`でカンマ区切り＋「円」を明記。あわせて万円換算（例：「（1,500万円）」）を小さめの文字で併記し、桁の大きい数字でも直感的に把握できるようにする
 - **単位**：金額・年数・月数のいずれも数字の直後に単位を明記し、単位のない裸の数字を表示しない
 - **計算根拠**：結果の直下に、`dl`（definition list）形式で「入力条件 → 判定区分 → 計算式」の内訳を必ず表示する。退職所得控除シミュレーターの「①調整前 → ②調整の内訳 → ③調整後」のように、複数ステップある場合は番号を振って順序を明示する
@@ -333,18 +342,24 @@ WCAGの考え方を参考にしつつ、過剰に複雑な独自ルールは設�
 
 ## 13. CSS Implementation Principles
 
-現在のプロジェクト構成（Vite + React + TypeScript、コンポーネント単位でCSSファイルをimportするプレーンCSS構成、Tailwind等のフレームワーク不使用）を前提に、今後CSSを整理・拡張する際に守るべき原則を整理する。**Tailwind CSSなど特定のフレームワークの導入は前提としない。**
+Vite + React + TypeScript構成に、**Tailwind CSS（v4、`@tailwindcss/vite`）をデザイントークン層として導入済み**。コンポーネント単位でCSSファイルをimportする既存構成は維持しており、Tailwindのユーティリティクラスですべてを書き直す方針は採っていない。
 
-1. **CSS Variablesを正とする**：色・余白・角丸・最大幅など繰り返し使う値は必ず`src/index.css`の`:root`にあるカスタムプロパティを参照し、コンポーネントCSS内に値をハードコードしない（現状ほぼ徹底されているが、Footer内のネイビー背景専用グレー等、意図的な例外のみ許容する）
-2. **remを基本単位にする**：フォントサイズは今後rem移行を進める（3章参照）。ボーダー幅（1px）やアイコンの微調整（1px単位の疑似要素）はpxのままでよい
-3. **clamp()は「意味のある可変幅」がある箇所にのみ使う**：見出しサイズやHero内の余白など、画面幅に応じて連続的に変化させたい箇所に限定し、乱用しない
-4. **line-heightは単位なしで指定する**：`line-height: 1.8`のように数値のみを指定し、`px`指定は行わない（既存実装どおり）
-5. **Spacing Scaleを厳守する**：4章のスケール外の値（例：`13px` `18px`など）は「コンポーネント固有の微調整」としてやむを得ず使う場合のみ許容し、レイアウト用の余白には必ずスケール値を使う
-6. **コンポーネント単位でCSSファイルを分割する**：現状の「1コンポーネント（.tsx）＝1CSSファイル」の構成を維持する。共通クラス（`.btn` `.card` `.section` `.container`等）のみ`index.css`に集約し、それ以外はコンポーネント側のCSSに閉じる
-7. **セレクタの詳細度を上げすぎない**：クラスセレクタ1階層を基本とし、`.a .b .c`のような深いネストや、要素セレクタとクラスセレクタを組み合わせた過剰に具体的なセレクタは避ける（現状、`.footer-sources .source-list-heading`のような2階層までのスコープ限定は許容範囲として実装済み）
-8. **`!important`を使わない**：詳細度の管理で解決できない場合は、セレクタやCSSの読み込み順を見直す。現状のコードベースに`!important`は存在せず、今後も使用しない
-9. **レスポンシブはモバイルファーストにこだわらず、現状の「デスクトップを基準にmax-widthで縮小する」実装方針を維持する**：プロジェクト全体で一貫しているため、途中からmin-width方式に混在させない
-10. **保守性**：計算ロジック（`utils/`）とUI（`components/`）を分離する既存方針と同様に、CSSも「見た目のルール」と「コンポーネントの責務」を1対1に保ち、あるコンポーネントの見た目のために別コンポーネントのCSSクラスを流用しない（現状、一部`.rd-breakdown`等をページ側で再利用している箇所があるため、次回整理時にクラス名の設計を見直す余地がある）
+### Tailwindの位置づけ
+1. **`@theme`をデザイントークンの正とする**：`src/index.css`の`@theme`ブロックで色・フォントのトークン（`--color-primary`等）を定義する。既存コンポーネントCSSが参照していた変数名（`--color-navy-900`等）は`:root`でこれらへのエイリアスとして残し、**値の定義元を`@theme`の1箇所のみにすることで、TailwindとCSS変数の二重管理を避けている**
+2. **構造的なCSSはコンポーネントCSSファイルのまま維持する**：グリッド、カードレイアウト、FAQのアコーディオン、フォームの並びなどコンポーネント固有の複雑なスタイルは、既存の「1コンポーネント（.tsx）＝1CSSファイル」の構成のまま実装する。Tailwindユーティリティへの一括置き換えは行っていない
+3. **現時点ではJSX側でTailwindユーティリティクラスは未使用**：`@theme`で定義したトークンは`bg-primary`等のユーティリティクラスとしても利用可能だが、今回はトークン層の導入にとどめている。今後、新規に追加するUIで`gap-4`のようなレイアウト用ユーティリティを直接使うことは妨げないが、既存クラスと同じ見た目を二重に定義しないこと
+4. **Tailwindの基本リセット（Preflight）と既存の手動リセットが重複している**：`* { box-sizing: border-box }`等、`src/index.css`内の既存リセットとTailwind Preflightで同じ内容が重複している箇所があるが、値が同一で見た目に影響しないため、リスクを避けて既存リセットはそのまま残している
+
+### CSSの原則（既存踏襲・実装済み）
+5. **remを基本単位にする**：全CSSファイルの`font-size`をrem指定に変換済み（3章参照）。ボーダー幅（1px）やアイコンの微調整（1px単位の疑似要素）はpxのままでよい
+6. **clamp()は「意味のある可変幅」がある箇所にのみ使う**：H1・H2・結果の強調数値の3箇所に実装済み（3章・11章参照）。それ以外のfont-sizeへの乱用はしない
+7. **line-heightは単位なしで指定する**：`line-height: 1.8`のように数値のみを指定し、`px`指定は行わない
+8. **Spacing Scaleを厳守する**：`--space-1`〜`--space-8`（8/12/16/24/32/48/64/96px）の外の値（例：`13px` `18px`など）は「コンポーネント固有の微調整」としてやむを得ず使う場合のみ許容する
+9. **共通パーツはコンポーネント単位CSSから`index.css`へ集約する**：フォーム（`.field` `.field-hint`）と結果表示（`.result-value` `.result-label` `.result-note` `.result-breakdown` `.result-breakdown-row`）は、掛金シミュレーションと退職所得控除シミュレーターの両方で使う共通クラスとして`src/index.css`に集約済み。以前は2つのコンポーネントCSSに同じ内容がほぼ重複していた
+10. **セレクタの詳細度を上げすぎない**：クラスセレクタ1階層を基本とし、`.a .b .c`のような深いネストは避ける（`.rd-example2-card .result-breakdown`のような2階層までのスコープ限定は許容範囲として実装済み）
+11. **`!important`を使わない**：詳細度の管理で解決できない場合は、セレクタやCSSの読み込み順を見直す。現状のコードベースに`!important`は存在しない
+12. **レスポンシブはデスクトップを基準にmax-widthで縮小する方針を維持する**：プロジェクト全体で一貫しているため、min-width方式に混在させない
+13. **保守性**：計算ロジック（`utils/`）とUI（`components/`）を分離する既存方針と同様に、CSSも「共通パーツ（`index.css`）」と「コンポーネント固有のスタイル」を分け、あるコンポーネントのCSSファイルにしか定義されていないクラスを別コンポーネントのJSXから参照しない（9番の集約により、退職所得控除ページが別コンポーネントのCSSに依存していた箇所は解消済み）
 
 ---
 
