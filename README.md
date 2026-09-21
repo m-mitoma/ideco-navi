@@ -106,6 +106,7 @@ React Routerを利用して複数ページをSPAとして構成しています�
 
 - `/`
 - `/about`
+- `/retirement-deduction`
 
 ## 使用技術
 
