@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import SectionHeading from '../common/SectionHeading'
 import Card from '../common/Card'
 import {
@@ -10,15 +10,24 @@ import './RetirementDeductionSimulator.css'
 
 interface RetirementDeductionSimulatorProps {
   id?: string
+  years: number
+  months: number
+  onYearsChange: (years: number) => void
+  onMonthsChange: (months: number) => void
 }
 
 // 入力すると即座に結果が更新される（ボタンを押す必要がない）シミュレーター。
+// 加入期間（years/months）はページ側（RetirementDeductionPage）が保持し、
+// 画面内の「事例」でも同じ値を使えるようにpropsで受け取る構成にしている。
 // 計算そのものはutils/calculateRetirementDeduction.tsに分離してあるため、
 // 税制が変わったときはそちらだけを直せばよい。
-function RetirementDeductionSimulator({ id }: RetirementDeductionSimulatorProps) {
-  const [years, setYears] = useState(20)
-  const [months, setMonths] = useState(6)
-
+function RetirementDeductionSimulator({
+  id,
+  years,
+  months,
+  onYearsChange,
+  onMonthsChange,
+}: RetirementDeductionSimulatorProps) {
   const errorMessage = useMemo(
     () => validateRetirementPeriodInput(years, months),
     [years, months],
@@ -52,7 +61,7 @@ function RetirementDeductionSimulator({ id }: RetirementDeductionSimulatorProps)
                   min={0}
                   max={60}
                   value={years}
-                  onChange={(event) => setYears(Number(event.target.value))}
+                  onChange={(event) => onYearsChange(Number(event.target.value))}
                   aria-describedby={errorMessage ? 'rd-period-error' : undefined}
                 />
               </div>
@@ -65,7 +74,7 @@ function RetirementDeductionSimulator({ id }: RetirementDeductionSimulatorProps)
                   min={0}
                   max={11}
                   value={months}
-                  onChange={(event) => setMonths(Number(event.target.value))}
+                  onChange={(event) => onMonthsChange(Number(event.target.value))}
                   aria-describedby={errorMessage ? 'rd-period-error' : undefined}
                 />
               </div>

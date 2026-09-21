@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import ArticleSection from '../components/sections/ArticleSection'
 import RetirementDeductionSimulator from '../components/sections/RetirementDeductionSimulator'
@@ -10,26 +11,18 @@ import {
   calculateEquivalentYears,
   calculateRetirementDeduction,
   formatManYen,
+  validateRetirementPeriodInput,
 } from '../utils/calculateRetirementDeduction'
 import './RetirementDeductionPage.css'
 
-// 「計算例②」用の参考値：企業型DC(30歳)からiDeCoへ通算30年加入した場合の
-// 調整前の目安。既存の計算ロジックをそのまま再利用している。
-const jobChangeExample = calculateRetirementDeduction(30, 0)
-
-// 前職の退職金（重複期間の調整の計算に使う）
+// 前職の退職金（重複期間の調整の計算に使う。加入期間とは無関係な固定値）
 const PRIOR_PAYMENT_AMOUNT = 1_000_000
 
 // 前職の退職金100万円に「相当する期間」（100万円 ÷ 40万円 → 端数切り捨て → 2年）
+// 加入期間の入力値には左右されないため、コンポーネントの外で計算しておける。
 const equivalentYears = calculateEquivalentYears(PRIOR_PAYMENT_AMOUNT)
-
-// この「相当する期間」（45歳までの直近の期間）は、iDeCoの加入期間（30〜60歳）に
-// そのまま収まるため、重複期間も同じ年数になる
 const overlapYears = equivalentYears
 const overlapDeduction = calculateDeductionAmount(overlapYears)
-
-// 調整後の退職所得控除額の目安（調整前の金額から、重複期間分の控除額を差し引く）
-const adjustedDeductionAmount = jobChangeExample.deductionAmount - overlapDeduction
 
 const sources = [
   {
@@ -47,6 +40,29 @@ const sources = [
 ]
 
 function RetirementDeductionPage() {
+  // シミュレーター本体と「事例」で共有する加入期間。ここで一元管理することで、
+  // 事例側が別のstateを持って計算がずれる、という事態を避けている。
+  const [years, setYears] = useState(20)
+  const [months, setMonths] = useState(6)
+
+  const errorMessage = useMemo(
+    () => validateRetirementPeriodInput(years, months),
+    [years, months],
+  )
+
+  // 「計算例②」の①：シミュレーター本体と同じ関数・同じ加入期間で計算する。
+  const jobChangeExample = useMemo(() => {
+    if (errorMessage) {
+      return null
+    }
+    return calculateRetirementDeduction(years, months)
+  }, [years, months, errorMessage])
+
+  // ③調整後の退職所得控除額（目安）。マイナスにはならないよう下限を0円にしている。
+  const adjustedDeductionAmount = jobChangeExample
+    ? Math.max(0, jobChangeExample.deductionAmount - overlapDeduction)
+    : null
+
   return (
     <>
       <section className="section rd-intro">
@@ -60,7 +76,13 @@ function RetirementDeductionPage() {
         </div>
       </section>
 
-      <RetirementDeductionSimulator id="simulator" />
+      <RetirementDeductionSimulator
+        id="simulator"
+        years={years}
+        months={months}
+        onYearsChange={setYears}
+        onMonthsChange={setMonths}
+      />
 
       <ArticleSection
         id="what-is-deduction"
@@ -128,81 +150,89 @@ function RetirementDeductionPage() {
           </dl>
 
           <Card className="rd-example2-card">
-            <p className="result-label">①調整前の退職所得控除額</p>
-            <dl className="result-breakdown">
-              <div className="result-breakdown-row">
-                <dt>加入期間（企業型DC・iDeCo通算）</dt>
-                <dd>30歳〜60歳の30年間</dd>
-              </div>
-              <div className="result-breakdown-row">
-                <dt>控除計算上の年数</dt>
-                <dd>{jobChangeExample.deductionYears}年</dd>
-              </div>
-              <div className="result-breakdown-row">
-                <dt>計算式</dt>
-                <dd>{jobChangeExample.formulaLabel}</dd>
-              </div>
-            </dl>
-            <p className="rd-result-value-small">
-              {jobChangeExample.deductionAmount.toLocaleString()}円（
-              {formatManYen(jobChangeExample.deductionAmount)}）
-            </p>
+            {jobChangeExample === null || adjustedDeductionAmount === null ? (
+              <p className="result-placeholder">
+                上のシミュレーターに有効な加入期間を入力すると、この事例の計算結果が表示されます。
+              </p>
+            ) : (
+              <>
+                <p className="result-label">①調整前の退職所得控除額</p>
+                <dl className="result-breakdown">
+                  <div className="result-breakdown-row">
+                    <dt>加入期間（企業型DC・iDeCo通算）</dt>
+                    <dd>
+                      {years}年{months}か月
+                    </dd>
+                  </div>
+                  <div className="result-breakdown-row">
+                    <dt>控除計算上の年数</dt>
+                    <dd>{jobChangeExample.deductionYears}年</dd>
+                  </div>
+                  <div className="result-breakdown-row">
+                    <dt>計算式</dt>
+                    <dd>{jobChangeExample.formulaLabel}</dd>
+                  </div>
+                </dl>
+                <p className="rd-result-value-small">
+                  {jobChangeExample.deductionAmount.toLocaleString()}円（
+                  {formatManYen(jobChangeExample.deductionAmount)}）
+                </p>
 
-            <div className="rd-adjustment-note">
-              <p className="rd-adjustment-note-title">
-                ②重複期間の調整（前職の退職金100万円との調整）
-              </p>
-              <p>
-                前職の退職金（100万円、45歳で受給）は、iDeCoの老齢一時金（60歳で受給）の
-                <strong>「前年以前19年内」</strong>に受け取っているため（60歳－45歳＝15年 ≦
-                19年）、厚生労働省の資料に示されている「退職所得控除の調整規定」の対象になります。
-              </p>
-              <dl className="result-breakdown">
-                <div className="result-breakdown-row">
-                  <dt>前職の退職金（45歳で受給）</dt>
-                  <dd>100万円</dd>
+                <div className="rd-adjustment-note">
+                  <p className="rd-adjustment-note-title">
+                    ②重複期間の調整（前職の退職金100万円との調整）
+                  </p>
+                  <p>
+                    前職の退職金（100万円、45歳で受給）は、iDeCoの老齢一時金（60歳で受給）の
+                    <strong>「前年以前19年内」</strong>に受け取っているため（60歳－45歳＝15年 ≦
+                    19年）、厚生労働省の資料に示されている「退職所得控除の調整規定」の対象になります。
+                  </p>
+                  <dl className="result-breakdown">
+                    <div className="result-breakdown-row">
+                      <dt>前職の退職金（45歳で受給）</dt>
+                      <dd>100万円</dd>
+                    </div>
+                    <div className="result-breakdown-row">
+                      <dt>相当する期間（100万円 ÷ 40万円、端数切り捨て）</dt>
+                      <dd>{equivalentYears}年</dd>
+                    </div>
+                    <div className="result-breakdown-row">
+                      <dt>iDeCo加入期間との重複年数</dt>
+                      <dd>{overlapYears}年</dd>
+                    </div>
+                    <div className="result-breakdown-row">
+                      <dt>差し引く金額</dt>
+                      <dd>
+                        40万円 × {overlapYears}年 ＝ {formatManYen(overlapDeduction)}
+                      </dd>
+                    </div>
+                  </dl>
+                  <p className="result-note">
+                    相当する期間は、前職の退職金の額を40万円で割った年数（1年未満の端数は切り捨て）から
+                    求めた目安です。この期間はiDeCoの加入期間にそのまま含まれるため、
+                    重複年数も同じ{overlapYears}年になります。
+                  </p>
                 </div>
-                <div className="result-breakdown-row">
-                  <dt>相当する期間（100万円 ÷ 40万円、端数切り捨て）</dt>
-                  <dd>{equivalentYears}年</dd>
-                </div>
-                <div className="result-breakdown-row">
-                  <dt>iDeCo加入期間（30〜60歳）との重複年数</dt>
-                  <dd>{overlapYears}年</dd>
-                </div>
-                <div className="result-breakdown-row">
-                  <dt>差し引く金額</dt>
-                  <dd>
-                    40万円 × {overlapYears}年 ＝ {formatManYen(overlapDeduction)}
-                  </dd>
-                </div>
-              </dl>
-              <p className="result-note">
-                相当する期間は、前職の退職金の額を40万円で割った年数（1年未満の端数は切り捨て）から
-                求めた目安です。この期間はiDeCoの加入期間（30〜60歳）にそのまま含まれるため、
-                重複年数も同じ{overlapYears}年になります。
-              </p>
-            </div>
 
-            <div className="rd-adjustment-note">
-              <p className="rd-adjustment-note-title">③調整後の退職所得控除額（目安）</p>
-              <p className="result-note">
-                {formatManYen(jobChangeExample.deductionAmount)} －{' '}
-                {formatManYen(overlapDeduction)} ＝{' '}
-                {formatManYen(adjustedDeductionAmount)}
-              </p>
-              <p className="result-value">
-                {adjustedDeductionAmount.toLocaleString()}円
-              </p>
-              <span className="rd-result-value-sub">
-                （{formatManYen(adjustedDeductionAmount)}）
-              </span>
-              <p className="result-note">
-                ※この金額は、公的資料に示された調整の考え方にもとづく概算です。相当する期間の算定方法や
-                重複年数の数え方は個別の状況によって異なる場合があるため、正確な金額は税務署・税理士、
-                または国税庁の情報でご確認ください。
-              </p>
-            </div>
+                <div className="rd-adjustment-note">
+                  <p className="rd-adjustment-note-title">③調整後の退職所得控除額（目安）</p>
+                  <p className="result-note">
+                    {formatManYen(jobChangeExample.deductionAmount)} －{' '}
+                    {formatManYen(overlapDeduction)} ＝{' '}
+                    {formatManYen(adjustedDeductionAmount)}
+                  </p>
+                  <p className="result-value">{adjustedDeductionAmount.toLocaleString()}円</p>
+                  <span className="rd-result-value-sub">
+                    （{formatManYen(adjustedDeductionAmount)}）
+                  </span>
+                  <p className="result-note">
+                    ※この金額は、公的資料に示された調整の考え方にもとづく概算です。相当する期間の算定方法や
+                    重複年数の数え方は個別の状況によって異なる場合があるため、正確な金額は税務署・税理士、
+                    または国税庁の情報でご確認ください。
+                  </p>
+                </div>
+              </>
+            )}
           </Card>
         </div>
       </section>
