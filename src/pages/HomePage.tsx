@@ -37,28 +37,13 @@ function HomePage() {
 
       <BenefitsSection id="benefits" />
 
-      <ReformSection
-        id="reform"
-        data={data}
-        isLoading={isLoading}
-        error={error}
-      />
+      <ReformSection id="reform" data={data} isLoading={isLoading} error={error} />
 
-      <ComparisonSection
-        id="comparison"
-        data={data}
-        isLoading={isLoading}
-        error={error}
-      />
+      <ComparisonSection id="comparison" data={data} isLoading={isLoading} error={error} />
 
       <ChecklistSection id="checklist" />
 
-      <SimulatorSection
-        id="simulator"
-        data={data}
-        isLoading={isLoading}
-        error={error}
-      />
+      <SimulatorSection id="simulator" data={data} isLoading={isLoading} error={error} />
 
       <FaqSection id="faq" items={faqItems} />
     </>

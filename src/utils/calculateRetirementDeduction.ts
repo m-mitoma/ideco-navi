@@ -55,8 +55,7 @@ export function calculateDeductionAmount(deductionYears: number): number {
   }
 
   return (
-    LONG_TERM_BASE_AMOUNT +
-    LONG_TERM_UNIT_AMOUNT * (deductionYears - SHORT_TERM_THRESHOLD_YEARS)
+    LONG_TERM_BASE_AMOUNT + LONG_TERM_UNIT_AMOUNT * (deductionYears - SHORT_TERM_THRESHOLD_YEARS)
   )
 }
 

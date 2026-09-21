@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /*
  * デザイントークン（docs/design-guideline.md 2章・3章に対応）。
@@ -19,8 +19,8 @@
   --color-error: #ad6e15;
   --color-error-tint: #fbf1e2;
 
-  --font-heading: "Zen Kaku Gothic New", "Noto Sans JP", sans-serif;
-  --font-body: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-heading: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  --font-body: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif;
 }
 
 :root {

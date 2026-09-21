@@ -14,10 +14,12 @@ interface ReformSectionProps {
 function ReformSection({ id, data, isLoading, error }: ReformSectionProps) {
   const futureCategories = data?.futureRules.categories ?? []
   const employeeCategories = futureCategories.filter(
-    (category) => category.group === 'employee-with-pension' || category.group === 'employee-no-pension',
+    (category) =>
+      category.group === 'employee-with-pension' || category.group === 'employee-no-pension',
   )
   const otherCategories = futureCategories.filter(
-    (category) => category.group !== 'employee-with-pension' && category.group !== 'employee-no-pension',
+    (category) =>
+      category.group !== 'employee-with-pension' && category.group !== 'employee-no-pension',
   )
 
   return (

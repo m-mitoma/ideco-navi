@@ -2,11 +2,7 @@
 // 「会社員に企業年金があるかどうか」で拠出限度額の区分が変わることが
 // コード上でも分かるように、groupを 'employee-with-pension' などで分けている。
 export type ParticipantGroup =
-  | 'self-employed'
-  | 'employee-no-pension'
-  | 'employee-with-pension'
-  | 'dependent-spouse'
-  | 'senior'
+  'self-employed' | 'employee-no-pension' | 'employee-with-pension' | 'dependent-spouse' | 'senior'
 
 export interface ParticipantCategory {
   id: string

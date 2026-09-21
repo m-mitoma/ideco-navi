@@ -28,10 +28,7 @@ function RetirementDeductionSimulator({
   onYearsChange,
   onMonthsChange,
 }: RetirementDeductionSimulatorProps) {
-  const errorMessage = useMemo(
-    () => validateRetirementPeriodInput(years, months),
-    [years, months],
-  )
+  const errorMessage = useMemo(() => validateRetirementPeriodInput(years, months), [years, months])
 
   const result = useMemo(() => {
     if (errorMessage) {

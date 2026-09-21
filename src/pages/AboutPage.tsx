@@ -45,12 +45,7 @@ function AboutPage() {
         ]}
       />
 
-      <ReformSection
-        id="reform-detail"
-        data={data}
-        isLoading={isLoading}
-        error={error}
-      />
+      <ReformSection id="reform-detail" data={data} isLoading={isLoading} error={error} />
 
       <div className="container about-back">
         <Link to="/" className="btn btn-secondary">

@@ -52,9 +52,7 @@ function ComparisonSection({ id, data, isLoading, error }: ComparisonSectionProp
                   return (
                     <tr key={row.group}>
                       <td>{row.rowLabel}</td>
-                      <td>
-                        {current ? `月額${current.monthlyLimit.toLocaleString()}円` : '—'}
-                      </td>
+                      <td>{current ? `月額${current.monthlyLimit.toLocaleString()}円` : '—'}</td>
                       <td className="comparison-future-cell">
                         {future ? `月額${future.monthlyLimit.toLocaleString()}円` : '—'}
                       </td>

@@ -16,12 +16,14 @@ const checklistItems: ChecklistItem[] = [
   {
     id: 2,
     title: '勤務先にDB（確定給付企業年金）など他の企業年金があるか',
-    description: 'DBなどは掛金の上限自体はありませんが、給付水準に応じた金額がiDeCoの枠に影響します。',
+    description:
+      'DBなどは掛金の上限自体はありませんが、給付水準に応じた金額がiDeCoの枠に影響します。',
   },
   {
     id: 3,
     title: '企業型DCに「マッチング拠出」の制度があるか',
-    description: 'マッチング拠出がある場合、マッチング拠出とiDeCoのどちらかを選ぶ仕組みになっています。',
+    description:
+      'マッチング拠出がある場合、マッチング拠出とiDeCoのどちらかを選ぶ仕組みになっています。',
   },
   {
     id: 4,

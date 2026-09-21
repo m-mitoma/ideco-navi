@@ -7,7 +7,7 @@ export async function GET() {
   if (!serviceDomain || !apiKey) {
     return Response.json(
       { message: 'microCMS environment variables are not configured.' },
-      { status: 500 }
+      { status: 500 },
     )
   }
 
@@ -25,9 +25,6 @@ export async function GET() {
   } catch (error) {
     console.error(error)
 
-    return Response.json(
-      { message: 'Failed to fetch FAQ data.' },
-      { status: 500 }
-    )
+    return Response.json({ message: 'Failed to fetch FAQ data.' }, { status: 500 })
   }
 }
