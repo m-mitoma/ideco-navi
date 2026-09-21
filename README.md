@@ -34,6 +34,12 @@ iDeCoという制度の名前は知っているものの自身の掛金上限や
 - 掛金シミュレーション
 - FAQ
 
+## 開発工程
+
+2026/9/20 10:00頃から9/21にかけて制作した開発工程です。
+
+![開発工程](docs/development-process/ideco-navi-development-process.png)
+
 ## 主な機能
 
 ### 掛金シミュレーション
