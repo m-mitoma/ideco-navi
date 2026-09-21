@@ -109,23 +109,6 @@ microCMS側でFAQを追加・変更することでフロントエンドのコー
 
 ![システム構成図](docs/system-architecture/system-architecture.png)
 
-## Reactで使用している主な機能
-
-- コンポーネント分割
-- useState
-- useEffect
-- props
-- フォーム入力
-- onChange
-- onSubmit
-- 条件分岐による表示切り替え
-- APIデータ取得
-- ローディング・エラー処理
-- React Router
-- SPA構成
-- 数値入力・フォームバリデーション
-- 計算ロジックの分離
-
 ## CMS連携
 
 API取得処理と画面表示を分離することで
