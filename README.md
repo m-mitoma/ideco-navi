@@ -1,5 +1,7 @@
 # 会社員向け iDeCo新制度ガイド
 
+[![CI](https://github.com/m-mitoma/ideco-navi/actions/workflows/ci.yml/badge.svg)](https://github.com/m-mitoma/ideco-navi/actions/workflows/ci.yml)
+
 会社員を対象としたiDeCo制度の解説サイトです。
 
 2026年12月から予定されているiDeCo制度改正を中心に制度の概要や税制上のメリット会社員が確認しておきたいポイントを分かりやすく整理することを目的としています。
