@@ -129,16 +129,16 @@ function RetirementDeductionPage() {
 
           <Card className="rd-example2-card">
             <p className="result-label">①調整前の退職所得控除額</p>
-            <dl className="rd-breakdown">
-              <div className="rd-breakdown-row">
+            <dl className="result-breakdown">
+              <div className="result-breakdown-row">
                 <dt>加入期間（企業型DC・iDeCo通算）</dt>
                 <dd>30歳〜60歳の30年間</dd>
               </div>
-              <div className="rd-breakdown-row">
+              <div className="result-breakdown-row">
                 <dt>控除計算上の年数</dt>
                 <dd>{jobChangeExample.deductionYears}年</dd>
               </div>
-              <div className="rd-breakdown-row">
+              <div className="result-breakdown-row">
                 <dt>計算式</dt>
                 <dd>{jobChangeExample.formulaLabel}</dd>
               </div>
@@ -157,20 +157,20 @@ function RetirementDeductionPage() {
                 <strong>「前年以前19年内」</strong>に受け取っているため（60歳－45歳＝15年 ≦
                 19年）、厚生労働省の資料に示されている「退職所得控除の調整規定」の対象になります。
               </p>
-              <dl className="rd-breakdown">
-                <div className="rd-breakdown-row">
+              <dl className="result-breakdown">
+                <div className="result-breakdown-row">
                   <dt>前職の退職金（45歳で受給）</dt>
                   <dd>100万円</dd>
                 </div>
-                <div className="rd-breakdown-row">
+                <div className="result-breakdown-row">
                   <dt>相当する期間（100万円 ÷ 40万円、端数切り捨て）</dt>
                   <dd>{equivalentYears}年</dd>
                 </div>
-                <div className="rd-breakdown-row">
+                <div className="result-breakdown-row">
                   <dt>iDeCo加入期間（30〜60歳）との重複年数</dt>
                   <dd>{overlapYears}年</dd>
                 </div>
-                <div className="rd-breakdown-row">
+                <div className="result-breakdown-row">
                   <dt>差し引く金額</dt>
                   <dd>
                     40万円 × {overlapYears}年 ＝ {formatManYen(overlapDeduction)}
@@ -191,7 +191,7 @@ function RetirementDeductionPage() {
                 {formatManYen(overlapDeduction)} ＝{' '}
                 {formatManYen(adjustedDeductionAmount)}
               </p>
-              <p className="rd-result-value">
+              <p className="result-value">
                 {adjustedDeductionAmount.toLocaleString()}円
               </p>
               <span className="rd-result-value-sub">

@@ -89,24 +89,24 @@ function RetirementDeductionSimulator({ id }: RetirementDeductionSimulatorProps)
               <div className="result-body">
                 <div className="result-block">
                   <span className="result-label">あなたの退職所得控除額（目安）</span>
-                  <p className="rd-result-value">{result.deductionAmount.toLocaleString()}円</p>
+                  <p className="result-value">{result.deductionAmount.toLocaleString()}円</p>
                   <span className="rd-result-value-sub">
                     （{formatManYen(result.deductionAmount)}）
                   </span>
                 </div>
 
-                <dl className="rd-breakdown">
-                  <div className="rd-breakdown-row">
+                <dl className="result-breakdown">
+                  <div className="result-breakdown-row">
                     <dt>加入期間</dt>
                     <dd>
                       {years}年{months}か月
                     </dd>
                   </div>
-                  <div className="rd-breakdown-row">
+                  <div className="result-breakdown-row">
                     <dt>控除計算上の年数</dt>
                     <dd>{result.deductionYears}年</dd>
                   </div>
-                  <div className="rd-breakdown-row">
+                  <div className="result-breakdown-row">
                     <dt>計算式</dt>
                     <dd>{result.formulaLabel}</dd>
                   </div>
