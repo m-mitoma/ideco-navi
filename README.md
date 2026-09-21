@@ -34,6 +34,10 @@ iDeCoという制度の名前は知っているものの自身の掛金上限や
 - 掛金シミュレーション
 - FAQ
 
+サイト全体の構成は以下の図の通りです。FAQはmicroCMSで管理しています。
+
+![サイト構成図](docs/site-structure/site-structure.png)
+
 ## 開発工程
 
 2026/9/20 10:00頃から9/21にかけて制作した開発工程です。
@@ -121,6 +125,10 @@ React Routerを利用して複数ページをSPAとして構成しています�
 - Prettier
 - Vitest
 - React Testing Library
+
+技術要素どうしの関係は以下の構成図の通りです。
+
+![システム構成図](docs/system-architecture/system-architecture.png)
 
 ## Reactで使用している主な機能
 
