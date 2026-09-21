@@ -8,13 +8,13 @@
 
 .notice-box-title {
   font-weight: 700;
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--color-amber-600);
   margin-bottom: 6px;
 }
 
 .notice-box-body {
-  font-size: 13.5px;
+  font-size: 0.84375rem;
   color: var(--color-text);
   line-height: 1.8;
 }

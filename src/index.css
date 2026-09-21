@@ -1,19 +1,42 @@
-:root {
-  --color-navy-900: #10233f;
-  --color-navy-700: #1d3f66;
-  --color-teal-600: #0f7a68;
-  --color-teal-700: #0c6a5a;
-  --color-teal-50: #e7f4f1;
-  --color-bg: #f6f7f9;
+@import "tailwindcss";
+
+/*
+ * デザイントークン（docs/design-guideline.md 2章・3章に対応）。
+ * Tailwindの @theme で定義すると、そのままユーティリティクラス
+ * （bg-primary, text-accent, border-error 等）としても使えるようになる。
+ */
+@theme {
+  --color-primary: #10233f;
+  --color-secondary: #1d3f66;
+  --color-accent: #0f7a68;
+  --color-accent-hover: #0c6a5a;
+  --color-accent-tint: #e7f4f1;
+  --color-background: #f6f7f9;
   --color-surface: #ffffff;
-  --color-border: #dee2e7;
   --color-text: #1b2430;
-  --color-text-muted: #5c6472;
-  --color-amber-600: #ad6e15;
-  --color-amber-50: #fbf1e2;
+  --color-muted: #5c6472;
+  --color-border: #dee2e7;
+  --color-error: #ad6e15;
+  --color-error-tint: #fbf1e2;
 
   --font-heading: "Zen Kaku Gothic New", "Noto Sans JP", sans-serif;
   --font-body: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+}
+
+:root {
+  /*
+   * 既存コンポーネントCSSが参照している変数名を、上のデザイントークンへの
+   * エイリアスとして残す（値の定義元は @theme の1箇所のみ＝二重管理にしない）。
+   */
+  --color-navy-900: var(--color-primary);
+  --color-navy-700: var(--color-secondary);
+  --color-teal-600: var(--color-accent);
+  --color-teal-700: var(--color-accent-hover);
+  --color-teal-50: var(--color-accent-tint);
+  --color-bg: var(--color-background);
+  --color-text-muted: var(--color-muted);
+  --color-amber-600: var(--color-error);
+  --color-amber-50: var(--color-error-tint);
 
   --space-1: 8px;
   --space-2: 12px;
@@ -65,7 +88,7 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: 0.9375rem;
   line-height: 1.8;
   -webkit-font-smoothing: antialiased;
 }
@@ -105,6 +128,21 @@ ul {
   list-style: none;
 }
 
+/*
+ * キーボード操作時のフォーカス表示を全体で統一する
+ * （docs/design-guideline.md 9章「今後の改善候補」に対応）。
+ * マウス/タップ操作では表示されず、キーボード操作時のみ表示される。
+ */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
 /* レイアウト共通のユーティリティ */
 .container {
   max-width: var(--content-max-width);
@@ -132,7 +170,7 @@ ul {
   border-radius: var(--radius);
   border: 1px solid transparent;
   font-weight: 700;
-  font-size: 14.5px;
+  font-size: 0.90625rem;
   cursor: pointer;
 }
 
@@ -159,4 +197,115 @@ ul {
   background: var(--color-border);
   color: #93999f;
   cursor: not-allowed;
+}
+
+/*
+ * シミュレーター・結果表示まわりで複数コンポーネントから共通で使う
+ * パーツ用クラス（docs/design-guideline.md 11章）。
+ * SimulatorSection / RetirementDeductionSimulator / RetirementDeductionPage
+ * のCSSに重複定義されていたものをここに集約している。
+ */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.field select,
+.field input {
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-family: var(--font-body);
+}
+
+.field-hint {
+  font-size: 0.71875rem;
+  color: var(--color-text-muted);
+}
+
+.result-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.result-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.result-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.result-note {
+  font-size: 0.71875rem;
+  color: var(--color-text-muted);
+}
+
+.result-value {
+  font-size: clamp(1.5rem, 1.3rem + 1vw, 2rem);
+  font-weight: 700;
+  color: var(--color-navy-900);
+  font-variant-numeric: tabular-nums;
+}
+
+.result-value-small {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-navy-900);
+}
+
+.result-placeholder {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.result-breakdown {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: 0;
+}
+
+.result-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 10px var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.84375rem;
+}
+
+.result-breakdown-row:last-child {
+  border-bottom: none;
+}
+
+.result-breakdown-row dt {
+  color: var(--color-text-muted);
+}
+
+.result-breakdown-row dd {
+  margin: 0;
+  color: var(--color-text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
 }

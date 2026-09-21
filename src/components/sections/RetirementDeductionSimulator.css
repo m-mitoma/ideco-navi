@@ -21,7 +21,7 @@
 }
 
 .rd-form legend {
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 700;
   color: var(--color-text);
   padding: 0;
@@ -38,42 +38,8 @@
   max-width: 140px;
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.field label {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-text);
-}
-
-.field input {
-  height: 44px;
-  padding: 0 12px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-  color: var(--color-text);
-  font-size: 14px;
-  font-family: var(--font-body);
-  font-variant-numeric: tabular-nums;
-}
-
-.field input:focus {
-  outline: 2px solid var(--color-teal-600);
-  outline-offset: 1px;
-}
-
-.field-hint {
-  font-size: 11.5px;
-  color: var(--color-text-muted);
-}
-
 .rd-error {
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 700;
   color: var(--color-amber-600);
   background: var(--color-amber-50);
@@ -88,78 +54,8 @@
   min-height: 200px;
 }
 
-.result-placeholder {
-  color: var(--color-text-muted);
-  font-size: 14px;
-}
-
-.result-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.result-block {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.result-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-text-muted);
-}
-
-.rd-result-value {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--color-navy-900);
-  font-variant-numeric: tabular-nums;
-}
-
 .rd-result-value-sub {
-  font-size: 13px;
-  color: var(--color-text-muted);
-}
-
-.rd-breakdown {
-  display: flex;
-  flex-direction: column;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  margin: 0;
-}
-
-.rd-breakdown-row {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding: 10px var(--space-3);
-  border-bottom: 1px solid var(--color-border);
-  font-size: 13.5px;
-}
-
-.rd-breakdown-row:last-child {
-  border-bottom: none;
-}
-
-.rd-breakdown-row dt {
-  color: var(--color-text-muted);
-}
-
-.rd-breakdown-row dd {
-  margin: 0;
-  color: var(--color-text);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-}
-
-.result-note {
-  font-size: 11.5px;
+  font-size: 0.8125rem;
   color: var(--color-text-muted);
 }
 

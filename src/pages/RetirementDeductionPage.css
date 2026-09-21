@@ -6,7 +6,7 @@
 
 .rd-eyebrow {
   display: inline-block;
-  font-size: 12.5px;
+  font-size: 0.78125rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--color-teal-600);
@@ -17,7 +17,7 @@
 }
 
 .rd-intro h1 {
-  font-size: 32px;
+  font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
   max-width: 640px;
   text-wrap: balance;
   margin-bottom: var(--space-3);
@@ -25,7 +25,7 @@
 
 .rd-lead {
   color: var(--color-text-muted);
-  font-size: 16px;
+  font-size: 1rem;
   max-width: 60ch;
 }
 
@@ -50,7 +50,7 @@
   gap: var(--space-4);
   padding: 12px var(--space-4);
   border-bottom: 1px solid var(--color-border);
-  font-size: 13.5px;
+  font-size: 0.84375rem;
 }
 
 .rd-timeline-row:last-child {
@@ -73,7 +73,7 @@
   margin-bottom: var(--space-4);
 }
 
-.rd-example2-card .rd-breakdown {
+.rd-example2-card .result-breakdown {
   margin-block: var(--space-3);
 }
 
@@ -84,7 +84,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--color-text);
   line-height: 1.8;
 }
@@ -95,7 +95,7 @@
 }
 
 .rd-result-value-small {
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
@@ -119,7 +119,6 @@
   }
 
   .rd-intro h1 {
-    font-size: 24px;
     max-width: none;
   }
 

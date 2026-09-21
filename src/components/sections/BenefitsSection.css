@@ -14,17 +14,17 @@
   background: var(--color-teal-50);
   color: var(--color-teal-600);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 0.8125rem;
   margin-bottom: var(--space-3);
 }
 
 .benefit-card h3 {
-  font-size: 16px;
+  font-size: 1rem;
   margin-bottom: 6px;
 }
 
 .benefit-card p {
-  font-size: 13.5px;
+  font-size: 0.84375rem;
   color: var(--color-text-muted);
 }
 

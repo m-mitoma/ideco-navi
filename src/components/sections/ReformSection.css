@@ -5,7 +5,7 @@
 }
 
 .reform-subheading {
-  font-size: 15px;
+  font-size: 0.9375rem;
   margin-bottom: var(--space-3);
 }
 
@@ -22,14 +22,14 @@
 }
 
 .reform-card-label {
-  font-size: 13.5px;
+  font-size: 0.84375rem;
   color: var(--color-text);
   font-weight: 500;
   margin-bottom: 6px;
 }
 
 .reform-card-value {
-  font-size: 26px;
+  font-size: 1.625rem;
   font-weight: 700;
   color: var(--color-navy-900);
   font-variant-numeric: tabular-nums;
@@ -37,7 +37,7 @@
 }
 
 .reform-card-note {
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
 }
 
@@ -55,7 +55,7 @@
   justify-content: space-between;
   gap: var(--space-3);
   padding: 12px var(--space-4);
-  font-size: 13.5px;
+  font-size: 0.84375rem;
   border-bottom: 1px solid var(--color-border);
 }
 
