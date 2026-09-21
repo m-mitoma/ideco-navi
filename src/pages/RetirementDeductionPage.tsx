@@ -45,10 +45,7 @@ function RetirementDeductionPage() {
   const [years, setYears] = useState(20)
   const [months, setMonths] = useState(6)
 
-  const errorMessage = useMemo(
-    () => validateRetirementPeriodInput(years, months),
-    [years, months],
-  )
+  const errorMessage = useMemo(() => validateRetirementPeriodInput(years, months), [years, months])
 
   // 「計算例②」の①：シミュレーター本体と同じ関数・同じ加入期間で計算する。
   const jobChangeExample = useMemo(() => {
@@ -209,8 +206,8 @@ function RetirementDeductionPage() {
                   </dl>
                   <p className="result-note">
                     相当する期間は、前職の退職金の額を40万円で割った年数（1年未満の端数は切り捨て）から
-                    求めた目安です。この期間はiDeCoの加入期間にそのまま含まれるため、
-                    重複年数も同じ{overlapYears}年になります。
+                    求めた目安です。この期間はiDeCoの加入期間にそのまま含まれるため、 重複年数も同じ
+                    {overlapYears}年になります。
                   </p>
                 </div>
 
@@ -218,8 +215,7 @@ function RetirementDeductionPage() {
                   <p className="rd-adjustment-note-title">③調整後の退職所得控除額（目安）</p>
                   <p className="result-note">
                     {formatManYen(jobChangeExample.deductionAmount)} －{' '}
-                    {formatManYen(overlapDeduction)} ＝{' '}
-                    {formatManYen(adjustedDeductionAmount)}
+                    {formatManYen(overlapDeduction)} ＝ {formatManYen(adjustedDeductionAmount)}
                   </p>
                   <p className="result-value">{adjustedDeductionAmount.toLocaleString()}円</p>
                   <span className="rd-result-value-sub">

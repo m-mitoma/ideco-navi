@@ -146,9 +146,7 @@ function SimulatorSection({ id, data, isLoading, error }: SimulatorSectionProps)
                 <div className="result-body">
                   <div className="result-block">
                     <span className="result-label">年間掛金</span>
-                    <p className="result-value">
-                      {result.annualContribution.toLocaleString()}円
-                    </p>
+                    <p className="result-value">{result.annualContribution.toLocaleString()}円</p>
                   </div>
 
                   <div className="result-block">

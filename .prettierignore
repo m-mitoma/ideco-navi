@@ -1,0 +1,7 @@
+dist
+node_modules
+package-lock.json
+.vercel
+
+# ドキュメント（内容の体裁を意図的に整えているため、コード整形の対象外にする）
+*.md
