@@ -26,6 +26,9 @@ function Footer({ sources }: FooterProps) {
             <li>
               <Link to="/about">詳細ページ</Link>
             </li>
+            <li>
+              <Link to="/retirement-deduction">退職所得控除シミュレーター</Link>
+            </li>
           </ul>
         </div>
         {sources && sources.length > 0 && (

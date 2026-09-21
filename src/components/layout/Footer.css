@@ -3,6 +3,7 @@
   color: #c7d1de;
   padding-block: var(--space-6) var(--space-4);
   margin-top: auto;
+  flex-shrink: 0;
 }
 
 .site-footer-inner {

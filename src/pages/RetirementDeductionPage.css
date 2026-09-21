@@ -1,0 +1,130 @@
+.rd-intro {
+  padding-block: var(--space-7);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.rd-eyebrow {
+  display: inline-block;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-teal-600);
+  background: var(--color-teal-50);
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: var(--space-3);
+}
+
+.rd-intro h1 {
+  font-size: 32px;
+  max-width: 640px;
+  text-wrap: balance;
+  margin-bottom: var(--space-3);
+}
+
+.rd-lead {
+  color: var(--color-text-muted);
+  font-size: 16px;
+  max-width: 60ch;
+}
+
+.rd-example2-intro {
+  max-width: 70ch;
+  color: var(--color-text);
+  margin-bottom: var(--space-4);
+}
+
+.rd-timeline {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: 0 0 var(--space-4);
+}
+
+.rd-timeline-row {
+  display: flex;
+  gap: var(--space-4);
+  padding: 12px var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 13.5px;
+}
+
+.rd-timeline-row:last-child {
+  border-bottom: none;
+}
+
+.rd-timeline-row dt {
+  flex: none;
+  width: 48px;
+  color: var(--color-teal-600);
+  font-weight: 700;
+}
+
+.rd-timeline-row dd {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.rd-example2-card {
+  margin-bottom: var(--space-4);
+}
+
+.rd-example2-card .rd-breakdown {
+  margin-block: var(--space-3);
+}
+
+.rd-adjustment-note {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px dashed var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: 13px;
+  color: var(--color-text);
+  line-height: 1.8;
+}
+
+.rd-adjustment-note-title {
+  font-weight: 700;
+  color: var(--color-amber-600);
+}
+
+.rd-result-value-small {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.rd-notice-section {
+  padding-block: 0 var(--space-7);
+}
+
+.rd-sources-section {
+  padding-block: 0 var(--space-7);
+}
+
+.rd-back {
+  padding-block: var(--space-6);
+}
+
+@media (max-width: 600px) {
+  .rd-intro {
+    padding-block: var(--space-5);
+  }
+
+  .rd-intro h1 {
+    font-size: 24px;
+    max-width: none;
+  }
+
+  .rd-notice-section,
+  .rd-sources-section {
+    padding-block: 0 var(--space-5);
+  }
+}
