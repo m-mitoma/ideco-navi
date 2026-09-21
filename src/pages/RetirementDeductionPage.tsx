@@ -20,11 +20,11 @@ const jobChangeExample = calculateRetirementDeduction(30, 0)
 // 前職の退職金（重複期間の調整の計算に使う）
 const PRIOR_PAYMENT_AMOUNT = 1_000_000
 
-// 前職の退職金100万円に「相当する期間」（100万円 ÷ 40万円 → 端数切り上げ・最低2年 → 3年）
+// 前職の退職金100万円に「相当する期間」（100万円 ÷ 40万円 → 端数切り捨て → 2年）
 const equivalentYears = calculateEquivalentYears(PRIOR_PAYMENT_AMOUNT)
 
-// この「相当する期間」（45歳までの直近3年間）は、iDeCoの加入期間（30〜60歳）に
-// そのまま収まるため、重複期間も同じ3年になる
+// この「相当する期間」（45歳までの直近の期間）は、iDeCoの加入期間（30〜60歳）に
+// そのまま収まるため、重複期間も同じ年数になる
 const overlapYears = equivalentYears
 const overlapDeduction = calculateDeductionAmount(overlapYears)
 
@@ -163,7 +163,7 @@ function RetirementDeductionPage() {
                   <dd>100万円</dd>
                 </div>
                 <div className="rd-breakdown-row">
-                  <dt>相当する期間（100万円 ÷ 40万円、端数切り上げ）</dt>
+                  <dt>相当する期間（100万円 ÷ 40万円、端数切り捨て）</dt>
                   <dd>{equivalentYears}年</dd>
                 </div>
                 <div className="rd-breakdown-row">
@@ -178,7 +178,7 @@ function RetirementDeductionPage() {
                 </div>
               </dl>
               <p className="result-note">
-                相当する期間は、前職の退職金の額を40万円で割った年数（端数切り上げ、最低2年）から
+                相当する期間は、前職の退職金の額を40万円で割った年数（1年未満の端数は切り捨て）から
                 求めた目安です。この期間はiDeCoの加入期間（30〜60歳）にそのまま含まれるため、
                 重複年数も同じ{overlapYears}年になります。
               </p>
