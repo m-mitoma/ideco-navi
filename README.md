@@ -189,18 +189,21 @@ Vitest・React Testing Libraryを導入し主要な計算ロジックとUIの動
 - FAQの内容設計
 - UI/UXの方向性
 - サイト構成
-- React、コンポーネント作成
-- フォーム処理
 - API処理
 - microCMS連携
-- React Routerの実装
+- AIへの実装指示・プロンプト作成
+- AIが生成したコードの確認・修正指示
+- 動作確認・テスト結果の確認
 
 ### AI
 
 Claude CodeなどのAIを活用して
 
-- TypeScriptの実装
+- React / TypeScriptの実装
+- コンポーネント作成
 - CSS実装
+- フォーム処理
+- React Routerの実装
 - ビルドエラー等の修正
 - テストコード作成
 
