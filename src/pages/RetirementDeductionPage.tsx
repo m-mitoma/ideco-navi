@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import PageHeroImage from '../components/common/PageHeroImage'
 import ArticleSection from '../components/sections/ArticleSection'
 import RetirementDeductionSimulator from '../components/sections/RetirementDeductionSimulator'
 import NoticeBox from '../components/common/NoticeBox'
@@ -219,16 +220,20 @@ function RetirementDeductionPage() {
 
   return (
     <>
-      <section className="section rd-intro">
-        <div className="container">
-          <p className="rd-eyebrow">退職所得控除シミュレーター</p>
-          <h1>iDeCoの退職所得控除、いくらになる？</h1>
-          <p className="rd-lead">
+      <PageHeroImage src="/images/hero/retirement-deduction.jpg" width={1024} height={434}>
+        <div className="page-intro-panel">
+          <p className="page-eyebrow">退職所得控除シミュレーター</p>
+          <h1>
+            iDeCoの退職所得控除、
+            <br />
+            いくらになる？
+          </h1>
+          <p className="page-lead">
             iDeCoの老齢一時金を受け取るときは、退職所得控除の対象になります。
             iDeCoを始めた年齢と受け取る予定の年齢を選ぶだけで、控除額の目安を確認できます。
           </p>
         </div>
-      </section>
+      </PageHeroImage>
 
       <RetirementDeductionSimulator
         id="simulator"
