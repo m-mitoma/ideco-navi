@@ -156,7 +156,7 @@ select:focus-visible,
 
 @media (max-width: 768px) {
   .section {
-    padding-block: var(--space-5);
+    margin-bottom:  var(--space-7);
   }
 }
 
