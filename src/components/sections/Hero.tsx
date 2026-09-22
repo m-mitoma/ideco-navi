@@ -16,9 +16,9 @@ function Hero() {
           まずはご自身の場合を確認してみましょう。
         </p>
         <div className="hero-actions">
-          <a href="#simulator" className="btn btn-primary">
+          <Link to="/contribution-simulator" className="btn btn-primary">
             掛金シミュレーションを試す
-          </a>
+          </Link>
           <Link to="/about" className="btn btn-secondary">
             制度の詳細を見る
           </Link>

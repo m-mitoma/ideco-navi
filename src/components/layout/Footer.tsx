@@ -27,6 +27,9 @@ function Footer({ sources }: FooterProps) {
               <Link to="/about">詳細ページ</Link>
             </li>
             <li>
+              <Link to="/contribution-simulator">掛金シミュレーター</Link>
+            </li>
+            <li>
               <Link to="/retirement-deduction">退職所得控除シミュレーター</Link>
             </li>
           </ul>

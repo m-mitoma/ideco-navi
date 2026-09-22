@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Hero from '../components/sections/Hero'
 import ArticleSection from '../components/sections/ArticleSection'
 import BenefitsSection from '../components/sections/BenefitsSection'
 import ReformSection from '../components/sections/ReformSection'
 import ComparisonSection from '../components/sections/ComparisonSection'
 import ChecklistSection from '../components/sections/ChecklistSection'
-import SimulatorSection from '../components/sections/SimulatorSection'
 import FaqSection from '../components/sections/FaqSection'
+import SectionHeading from '../components/common/SectionHeading'
+import Card from '../components/common/Card'
 import { useIdecoRules } from '../hooks/useIdecoRules'
 import { fetchFaqItems } from '../api/faq'
 import type { Faq } from '../api/microcms'
+import './HomePage.css'
 
 // 制度データはここで1回だけ取得し、必要なセクションにpropsとして渡す。
 function HomePage() {
@@ -43,7 +46,33 @@ function HomePage() {
 
       <ChecklistSection id="checklist" />
 
-      <SimulatorSection id="simulator" data={data} isLoading={isLoading} error={error} />
+      <section id="simulator-links" className="section">
+        <div className="container">
+          <SectionHeading>自分の場合を計算してみる</SectionHeading>
+          <div className="home-simulator-links">
+            <Card className="home-simulator-card">
+              <p className="home-simulator-card-title">掛金はいくらまで？</p>
+              <p>
+                年齢・年収・企業年金の状況を入力すると、確認すべき拠出限度額の区分と、
+                2026年12月以降の変化の目安がわかります。
+              </p>
+              <Link to="/contribution-simulator" className="btn btn-primary">
+                掛金シミュレーションを見る
+              </Link>
+            </Card>
+            <Card className="home-simulator-card">
+              <p className="home-simulator-card-title">iDeCoの退職所得控除、いくらになる？</p>
+              <p>
+                iDeCoを始めた年齢と受け取る予定の年齢を選ぶだけで、退職所得控除額の目安を
+                確認できます。過去に退職金を受け取ったことがある場合の調整にも対応しています。
+              </p>
+              <Link to="/retirement-deduction" className="btn btn-primary">
+                退職所得控除シミュレーターを見る
+              </Link>
+            </Card>
+          </div>
+        </div>
+      </section>
 
       <FaqSection id="faq" items={faqItems} />
     </>
