@@ -31,7 +31,7 @@ function HomePage() {
         src="/images/hero/home.jpg"
         width={1024}
         height={572}
-        alt="オフィスのデスクに置かれたノートパソコンやスマートフォン、手帳などのビジネスアイテム"
+        alt=""
         keepOverlayOnMobile
       >
         <Hero />
