@@ -32,13 +32,13 @@ iDeCoという制度の名前は知っているものの自身の掛金上限や
 
 ## 開発工程
 
-![開発工程](docs/development-process/development-process.png)
+![開発工程](docs/development-process/development-process2.png)
 
 ## サイト構成
 
 サイト全体の構成は以下の図の通りです。
 
-![サイト構成図](docs/site-structure/site-structure.png)
+![サイト構成図](docs/site-structure/site-structure2.png)
 
 ## 主な機能
 
