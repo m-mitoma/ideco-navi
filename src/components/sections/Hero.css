@@ -1,5 +1,6 @@
 .hero {
   padding-block: var(--space-7);
+  margin-bottom: var(--space-7);
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
 }
