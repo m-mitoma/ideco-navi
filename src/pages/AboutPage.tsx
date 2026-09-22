@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import PageHeroImage from '../components/common/PageHeroImage'
 import ArticleSection from '../components/sections/ArticleSection'
 import ReformSection from '../components/sections/ReformSection'
 import { useIdecoRules } from '../hooks/useIdecoRules'
@@ -9,6 +10,17 @@ function AboutPage() {
 
   return (
     <>
+      <PageHeroImage src="/images/hero/about.jpg" width={1024} height={434}>
+        <div className="page-intro-panel">
+          <p className="page-eyebrow">制度の詳細</p>
+          <h1>iDeCoの制度をくわしく知る</h1>
+          <p className="page-lead">
+            iDeCoの仕組みや会社員の加入条件、企業年金との関係、掛金について、
+            2026年12月の制度改正の内容まで詳しく解説します。
+          </p>
+        </div>
+      </PageHeroImage>
+
       <ArticleSection
         id="mechanism"
         title="iDeCoの仕組み"

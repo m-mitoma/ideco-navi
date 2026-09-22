@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import PageHeroImage from '../components/common/PageHeroImage'
 import SimulatorSection from '../components/sections/SimulatorSection'
 import NoticeBox from '../components/common/NoticeBox'
 import { useIdecoRules } from '../hooks/useIdecoRules'
@@ -9,16 +10,20 @@ function ContributionSimulatorPage() {
 
   return (
     <>
-      <section className="section cs-intro">
-        <div className="container">
-          <p className="cs-eyebrow">掛金シミュレーション</p>
-          <h1>iDeCoの掛金、いくらまで拠出できる？</h1>
-          <p className="cs-lead">
+      <PageHeroImage src="/images/hero/contribution-simulator.jpg" width={1024} height={434}>
+        <div className="page-intro-panel">
+          <p className="page-eyebrow">掛金シミュレーション</p>
+          <h1>
+            iDeCoの掛金、
+            <br />
+            いくらまで拠出できる？
+          </h1>
+          <p className="page-lead">
             年齢・年収・企業年金の状況・毎月の掛金を入力すると、確認すべき拠出限度額の区分と、
             2026年12月以降の変化の目安が分かります。
           </p>
         </div>
-      </section>
+      </PageHeroImage>
 
       <SimulatorSection id="simulator" data={data} isLoading={isLoading} error={error} />
 

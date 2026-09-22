@@ -184,7 +184,7 @@ select:focus-visible,
 }
 
 .btn-secondary {
-  background: transparent;
+  background: #fff;
   color: var(--color-navy-700);
   border-color: var(--color-navy-700);
 }
@@ -197,6 +197,80 @@ select:focus-visible,
   background: var(--color-border);
   color: #93999f;
   cursor: not-allowed;
+}
+
+/*
+ * 各ページ最上部のヒーロー画像（PageHeroImage）。
+ * ブラウザ幅いっぱいのグラデーション帯の上に、書き出し時の横幅を保ったまま
+ * 画像を中央配置する。画像に重ねる内容（RetirementDeductionPage /
+ * ContributionSimulatorPage / AboutPageのpage-intro-panel、HomePageのHero）は
+ * 画像に対して上下中央に表示する。ページごとのCSSに重複定義せずここに集約している。
+ */
+.page-hero-band {
+  position: relative;
+  margin-bottom: var(--space-7);
+  background: linear-gradient(120deg, var(--color-background) 0%, var(--color-border) 100%);
+}
+
+.page-hero-image {
+  display: block;
+  width: 100%;
+  max-width: 1024px;
+  height: auto;
+  margin-inline: auto;
+}
+
+.page-hero-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+}
+
+.page-intro-panel {
+  background: var(--color-surface);
+  padding: var(--space-3);
+  max-width: 480px;
+}
+
+.page-eyebrow {
+  display: inline-block;
+  font-size: 0.78125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-teal-600);
+  background: var(--color-teal-50);
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: var(--space-3);
+}
+
+.page-intro-panel h1 {
+  font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
+  text-wrap: balance;
+  margin-bottom: var(--space-3);
+}
+
+.page-lead {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  max-width: 60ch;
+}
+
+@media (max-width: 600px) {
+  /* Home（page-hero-overlay-persist）はモバイルでも画像に重ねたままにするため対象外にする */
+  .page-hero-overlay:not(.page-hero-overlay-persist) .page-lead {
+    display: none;
+  }
+  .page-intro-panel h1 {
+    text-shadow: 0 0 6px var(--color-surface), 0 0 6px var(--color-surface), 0 0 12px var(--color-surface);
+  }
+  .page-intro-panel {
+    max-width: none;
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
 }
 
 /*

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import PageHeroImage from '../components/common/PageHeroImage'
 import Hero from '../components/sections/Hero'
 import ArticleSection from '../components/sections/ArticleSection'
 import BenefitsSection from '../components/sections/BenefitsSection'
@@ -26,7 +27,15 @@ function HomePage() {
 
   return (
     <>
-      <Hero />
+      <PageHeroImage
+        src="/images/hero/home.jpg"
+        width={1024}
+        height={572}
+        alt="オフィスのデスクに置かれたノートパソコンやスマートフォン、手帳などのビジネスアイテム"
+        keepOverlayOnMobile
+      >
+        <Hero />
+      </PageHeroImage>
 
       <ArticleSection
         id="about-ideco"
