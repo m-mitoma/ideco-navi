@@ -151,28 +151,12 @@ select:focus-visible,
 }
 
 .section {
-  margin-top: var(--space-7);
-  margin-bottom: var(--space-7);
-}
-
-/* 画面内で2番目以降のセクションではmargin-topを付けない（前のセクションのmargin-bottomと重複させないため） */
-.section ~ .section {
-  margin-top: 0;
-}
-
-/* 画面内で最後のセクションにはmargin-bottomを付けない（後続の要素側の余白と重複させないため） */
-.section:not(:has(~ .section)) {
-  margin-bottom: 0;
+  padding-block: var(--space-7);
 }
 
 @media (max-width: 768px) {
   .section {
-    margin-top: var(--space-5);
-    margin-bottom: var(--space-5);
-  }
-
-  .section ~ .section {
-    margin-top: 0;
+    padding-block: var(--space-5);
   }
 }
 
