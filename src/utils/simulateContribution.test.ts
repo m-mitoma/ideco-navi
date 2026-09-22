@@ -1,11 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import type { RuleSet } from '../types/ideco'
 import {
+  MAX_IDECO_AGE_EXCLUSIVE,
+  MIN_IDECO_AGE,
   calculateAnnualContribution,
   estimateCombinedTaxRate,
   estimateTaxBenefit,
   findCategory,
+  formatIntegerInputWithCommas,
+  parseIntegerInput,
   pickParticipantGroup,
+  stripCommas,
+  validateAgeInput,
+  validateAnnualIncomeInput,
 } from './simulateContribution'
 
 const ruleSet: RuleSet = {
@@ -97,5 +104,138 @@ describe('estimateTaxBenefit', () => {
   it('年収帯が変わると概算額も変わる', () => {
     expect(estimateTaxBenefit(240000, 4_000_000)).toBe(36000)
     expect(estimateTaxBenefit(240000, 9_000_000)).toBe(72000)
+  })
+})
+
+describe('parseIntegerInput', () => {
+  it('空文字はnullを返す（0への変換はしない）', () => {
+    expect(parseIntegerInput('')).toBeNull()
+    expect(parseIntegerInput('  ')).toBeNull()
+  })
+
+  it('整数の数字列を数値に変換する', () => {
+    expect(parseIntegerInput('40')).toBe(40)
+    expect(parseIntegerInput('0')).toBe(0)
+    expect(parseIntegerInput('6000000')).toBe(6000000)
+  })
+
+  it('マイナスの整数も数値に変換する', () => {
+    expect(parseIntegerInput('-10')).toBe(-10)
+  })
+
+  it('小数はnullを返す', () => {
+    expect(parseIntegerInput('35.5')).toBeNull()
+  })
+
+  it('数字以外の文字列はnullを返す', () => {
+    expect(parseIntegerInput('abc')).toBeNull()
+    expect(parseIntegerInput('1e5')).toBeNull()
+  })
+})
+
+describe('validateAgeInput', () => {
+  it('空欄はエラーになる', () => {
+    expect(validateAgeInput('')).toBe('年齢を入力してください。')
+  })
+
+  it('マイナス値は「0以上」のエラーになる', () => {
+    expect(validateAgeInput('-10')).toBe('年齢は0以上で入力してください。')
+    expect(validateAgeInput('-1')).toBe('年齢は0以上で入力してください。')
+  })
+
+  it('0歳や20歳未満はiDeCoの加入可能年齢のエラーになる', () => {
+    expect(validateAgeInput('0')).toBe(`iDeCoは${MIN_IDECO_AGE}歳以上の方が加入対象です。`)
+    expect(validateAgeInput('19')).toBe(`iDeCoは${MIN_IDECO_AGE}歳以上の方が加入対象です。`)
+  })
+
+  it('小数はエラーになる', () => {
+    expect(validateAgeInput('35.5')).toBe('年齢は整数で入力してください。')
+  })
+
+  it('数字以外の文字列はエラーになる', () => {
+    expect(validateAgeInput('abc')).toBe('年齢は整数で入力してください。')
+  })
+
+  it('20歳以上70歳未満は加入可能年齢の範囲内としてエラーにならない（境界値）', () => {
+    expect(validateAgeInput(String(MIN_IDECO_AGE))).toBeNull()
+    expect(validateAgeInput('40')).toBeNull()
+    expect(validateAgeInput(String(MAX_IDECO_AGE_EXCLUSIVE - 1))).toBeNull()
+  })
+
+  it('70歳以上はエラーになるが、単純な「60歳以上は加入不可」にはしない（69歳は許可）', () => {
+    expect(validateAgeInput('69')).toBeNull()
+    expect(validateAgeInput(String(MAX_IDECO_AGE_EXCLUSIVE))).toBe(
+      `iDeCoは${MAX_IDECO_AGE_EXCLUSIVE}歳未満の方が加入対象です。`,
+    )
+  })
+})
+
+describe('validateAnnualIncomeInput', () => {
+  it('空欄はエラーになる', () => {
+    expect(validateAnnualIncomeInput('')).toBe('年収を入力してください。')
+  })
+
+  it('マイナス値はエラーになる', () => {
+    expect(validateAnnualIncomeInput('-1000000')).toBe('年収は0円以上で入力してください。')
+  })
+
+  it('0円はエラーにならない', () => {
+    expect(validateAnnualIncomeInput('0')).toBeNull()
+  })
+
+  it('小数はエラーになる', () => {
+    expect(validateAnnualIncomeInput('5000000.5')).toBe('年収は整数（円単位）で入力してください。')
+  })
+
+  it('数字以外の文字列はエラーになる', () => {
+    expect(validateAnnualIncomeInput('abc')).toBe('年収は整数（円単位）で入力してください。')
+  })
+
+  it('大きな金額でもエラーにならない', () => {
+    expect(validateAnnualIncomeInput('50000000')).toBeNull()
+  })
+})
+
+describe('formatIntegerInputWithCommas', () => {
+  it('3桁ごとにカンマを付ける', () => {
+    expect(formatIntegerInputWithCommas('6000000')).toBe('6,000,000')
+    expect(formatIntegerInputWithCommas('1000')).toBe('1,000')
+    expect(formatIntegerInputWithCommas('100')).toBe('100')
+  })
+
+  it('マイナスの数字列にもカンマを付ける', () => {
+    expect(formatIntegerInputWithCommas('-1000000')).toBe('-1,000,000')
+  })
+
+  it('空文字・マイナス符号のみの入力途中の状態はそのまま返す', () => {
+    expect(formatIntegerInputWithCommas('')).toBe('')
+    expect(formatIntegerInputWithCommas('-')).toBe('-')
+  })
+})
+
+describe('stripCommas', () => {
+  it('カンマを取り除く', () => {
+    expect(stripCommas('6,000,000')).toBe('6000000')
+    expect(stripCommas('1,000')).toBe('1000')
+  })
+
+  it('カンマがない場合はそのまま返す', () => {
+    expect(stripCommas('6000000')).toBe('6000000')
+  })
+})
+
+describe('カンマ付き表示と計算結果の整合性', () => {
+  it('カンマ付きで表示した文字列からカンマを外すと、元の数字列に戻る（表示のフォーマットが計算値を変えない）', () => {
+    const raw = '6000000'
+    const displayed = formatIntegerInputWithCommas(raw)
+    expect(displayed).toBe('6,000,000')
+    expect(stripCommas(displayed)).toBe(raw)
+    expect(parseIntegerInput(stripCommas(displayed))).toBe(6_000_000)
+  })
+
+  it('validateAnnualIncomeInputはカンマなしの生の文字列に対して判定する（表示用フォーマットとは独立している）', () => {
+    const raw = '6000000'
+    expect(validateAnnualIncomeInput(raw)).toBeNull()
+    expect(parseIntegerInput(raw)).toBe(6_000_000)
   })
 })

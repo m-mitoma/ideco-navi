@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import type { FormEvent } from 'react'
+import { useMemo, useState } from 'react'
+import type { ChangeEvent, FormEvent } from 'react'
 import SectionHeading from '../common/SectionHeading'
 import Card from '../common/Card'
 import Button from '../common/Button'
@@ -9,9 +9,21 @@ import {
   calculateAnnualContribution,
   estimateTaxBenefit,
   findCategory,
+  formatIntegerInputWithCommas,
+  parseIntegerInput,
   pickParticipantGroup,
+  stripCommas,
+  validateAgeInput,
+  validateAnnualIncomeInput,
 } from '../../utils/simulateContribution'
 import './SimulatorSection.css'
+
+// 入力途中の空文字やマイナスの符号をそのまま許容し、数字以外の文字は入力させない。
+// （例: Delete/Backspaceで全消去した直後に空文字を許容し、「0」が残ることで
+// 　次の入力が「035」のように連結されてしまう問題を避ける）
+function isEditableIntegerInput(raw: string): boolean {
+  return /^-?\d*$/.test(raw)
+}
 
 interface SimulatorSectionProps {
   id?: string
@@ -28,17 +40,46 @@ interface SimulationResult {
 }
 
 function SimulatorSection({ id, data, isLoading, error }: SimulatorSectionProps) {
-  const [age, setAge] = useState(40)
-  const [annualIncome, setAnnualIncome] = useState(6000000)
+  const [ageInput, setAgeInput] = useState('40')
+  const [incomeInput, setIncomeInput] = useState('6000000')
   const [hasCompanyPension, setHasCompanyPension] = useState(false)
   const [hasCorporateDc, setHasCorporateDc] = useState(false)
-  const [monthlyAmount, setMonthlyAmount] = useState(20000)
+  const [monthlyAmountInput, setMonthlyAmountInput] = useState('20000')
   const [result, setResult] = useState<SimulationResult | null>(null)
+
+  const ageError = useMemo(() => validateAgeInput(ageInput), [ageInput])
+  const incomeError = useMemo(() => validateAnnualIncomeInput(incomeInput), [incomeInput])
+
+  function handleAgeChange(event: ChangeEvent<HTMLInputElement>) {
+    if (isEditableIntegerInput(event.target.value)) {
+      setAgeInput(event.target.value)
+    }
+  }
+
+  function handleIncomeChange(event: ChangeEvent<HTMLInputElement>) {
+    const stripped = stripCommas(event.target.value)
+    if (isEditableIntegerInput(stripped)) {
+      setIncomeInput(stripped)
+    }
+  }
+
+  function handleMonthlyAmountChange(event: ChangeEvent<HTMLInputElement>) {
+    const stripped = stripCommas(event.target.value)
+    if (isEditableIntegerInput(stripped)) {
+      setMonthlyAmountInput(stripped)
+    }
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!data) {
+    if (!data || ageError || incomeError) {
+      return
+    }
+
+    const annualIncome = parseIntegerInput(incomeInput)
+    const monthlyAmount = parseIntegerInput(monthlyAmountInput)
+    if (annualIncome === null || monthlyAmount === null) {
       return
     }
 
@@ -75,27 +116,37 @@ function SimulatorSection({ id, data, isLoading, error }: SimulatorSectionProps)
                 <label htmlFor="sim-age">年齢</label>
                 <input
                   id="sim-age"
-                  type="number"
-                  min={20}
-                  max={69}
-                  value={age}
-                  onChange={(event) => setAge(Number(event.target.value))}
+                  type="text"
+                  inputMode="numeric"
+                  value={ageInput}
+                  onChange={handleAgeChange}
+                  aria-describedby={ageError ? 'sim-age-error' : undefined}
                 />
+                {ageError && (
+                  <p id="sim-age-error" className="field-error" role="alert">
+                    {ageError}
+                  </p>
+                )}
               </div>
 
               <div className="field">
                 <label htmlFor="sim-income">年収（円）</label>
                 <input
                   id="sim-income"
-                  type="number"
-                  min={0}
-                  step={100000}
-                  value={annualIncome}
-                  onChange={(event) => setAnnualIncome(Number(event.target.value))}
+                  type="text"
+                  inputMode="numeric"
+                  value={formatIntegerInputWithCommas(incomeInput)}
+                  onChange={handleIncomeChange}
+                  aria-describedby={incomeError ? 'sim-income-error' : undefined}
                 />
                 <span className="field-hint">
                   年収は税制メリットの概算にのみ使用し、拠出限度額の判定には使用しません。
                 </span>
+                {incomeError && (
+                  <p id="sim-income-error" className="field-error" role="alert">
+                    {incomeError}
+                  </p>
+                )}
               </div>
 
               <div className="field field-checkbox">
@@ -126,11 +177,10 @@ function SimulatorSection({ id, data, isLoading, error }: SimulatorSectionProps)
                 <label htmlFor="sim-amount">毎月の掛金額（円）</label>
                 <input
                   id="sim-amount"
-                  type="number"
-                  min={1000}
-                  step={1000}
-                  value={monthlyAmount}
-                  onChange={(event) => setMonthlyAmount(Number(event.target.value))}
+                  type="text"
+                  inputMode="numeric"
+                  value={formatIntegerInputWithCommas(monthlyAmountInput)}
+                  onChange={handleMonthlyAmountChange}
                 />
               </div>
 
