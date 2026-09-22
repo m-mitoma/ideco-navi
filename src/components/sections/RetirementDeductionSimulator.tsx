@@ -1,130 +1,103 @@
 import { useMemo } from 'react'
 import SectionHeading from '../common/SectionHeading'
-import Card from '../common/Card'
 import {
-  calculateRetirementDeduction,
-  formatManYen,
-  validateRetirementPeriodInput,
+  calculateEnrollmentYears,
+  validateAgeRangeInput,
 } from '../../utils/calculateRetirementDeduction'
+import { MAX_IDECO_AGE_EXCLUSIVE, MIN_IDECO_AGE } from '../../utils/simulateContribution'
 import './RetirementDeductionSimulator.css'
+
+// iDeCoの加入可能年齢（掛金シミュレーターと同じ範囲）の中から選択させる。
+const AGE_OPTIONS = Array.from(
+  { length: MAX_IDECO_AGE_EXCLUSIVE - MIN_IDECO_AGE },
+  (_, index) => MIN_IDECO_AGE + index,
+)
 
 interface RetirementDeductionSimulatorProps {
   id?: string
-  years: number
-  months: number
-  onYearsChange: (years: number) => void
-  onMonthsChange: (months: number) => void
+  startAge: number
+  endAge: number
+  onStartAgeChange: (age: number) => void
+  onEndAgeChange: (age: number) => void
 }
 
 // 入力すると即座に結果が更新される（ボタンを押す必要がない）シミュレーター。
-// 加入期間（years/months）はページ側（RetirementDeductionPage）が保持し、
-// 画面内の「事例」でも同じ値を使えるようにpropsで受け取る構成にしている。
+// ユーザーには「加入期間」を直接入力させず、加入開始年齢・受取予定年齢を選択してもらい、
+// その差から加入期間を自動計算する。加入開始年齢・受取予定年齢（startAge/endAge）は
+// ページ側（RetirementDeductionPage）が保持し、画面内の「事例」でも同じ値を使えるように
+// propsで受け取る構成にしている。
 // 計算そのものはutils/calculateRetirementDeduction.tsに分離してあるため、
 // 税制が変わったときはそちらだけを直せばよい。
 function RetirementDeductionSimulator({
   id,
-  years,
-  months,
-  onYearsChange,
-  onMonthsChange,
+  startAge,
+  endAge,
+  onStartAgeChange,
+  onEndAgeChange,
 }: RetirementDeductionSimulatorProps) {
-  const errorMessage = useMemo(() => validateRetirementPeriodInput(years, months), [years, months])
-
-  const result = useMemo(() => {
-    if (errorMessage) {
-      return null
-    }
-    return calculateRetirementDeduction(years, months)
-  }, [years, months, errorMessage])
+  const errorMessage = useMemo(() => validateAgeRangeInput(startAge, endAge), [startAge, endAge])
+  const enrollmentYears = useMemo(
+    () => calculateEnrollmentYears(startAge, endAge),
+    [startAge, endAge],
+  )
 
   return (
     <section id={id} className="section rd-simulator-section">
       <div className="container">
         <SectionHeading>退職所得控除シミュレーター</SectionHeading>
         <p className="rd-simulator-intro">
-          iDeCoの加入期間（掛金を拠出した期間）を入力すると、退職所得控除額の目安が分かります。
+          iDeCoを始めた年齢と受け取る予定の年齢を選択すると、退職所得控除額の目安が分かります。
         </p>
 
-        <div className="rd-simulator-layout">
-          <fieldset className="rd-form">
-            <legend>加入期間</legend>
-            <div className="rd-period-inputs">
-              <div className="field">
-                <label htmlFor="rd-years">年</label>
-                <input
-                  id="rd-years"
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  max={60}
-                  value={years}
-                  onChange={(event) => onYearsChange(Number(event.target.value))}
-                  aria-describedby={errorMessage ? 'rd-period-error' : undefined}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="rd-months">か月</label>
-                <input
-                  id="rd-months"
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  max={11}
-                  value={months}
-                  onChange={(event) => onMonthsChange(Number(event.target.value))}
-                  aria-describedby={errorMessage ? 'rd-period-error' : undefined}
-                />
-              </div>
+        <fieldset className="rd-form">
+          <legend>加入期間</legend>
+          <div className="rd-period-inputs">
+            <div className="field">
+              <label htmlFor="rd-start-age">iDeCoを何歳から始めましたか？</label>
+              <select
+                id="rd-start-age"
+                value={startAge}
+                onChange={(event) => onStartAgeChange(Number(event.target.value))}
+                aria-describedby={errorMessage ? 'rd-period-error' : undefined}
+              >
+                {AGE_OPTIONS.map((age) => (
+                  <option key={age} value={age}>
+                    {age}歳
+                  </option>
+                ))}
+              </select>
             </div>
-            <p className="field-hint">
-              iDeCoに加入して、掛金を拠出していた期間で入力してください。
+            <span className="rd-period-separator" aria-hidden="true">
+              〜
+            </span>
+            <div className="field">
+              <label htmlFor="rd-end-age">何歳で受け取る予定ですか？</label>
+              <select
+                id="rd-end-age"
+                value={endAge}
+                onChange={(event) => onEndAgeChange(Number(event.target.value))}
+                aria-describedby={errorMessage ? 'rd-period-error' : undefined}
+              >
+                {AGE_OPTIONS.map((age) => (
+                  <option key={age} value={age}>
+                    {age}歳
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {errorMessage ? (
+            <p id="rd-period-error" className="rd-error" role="alert">
+              入力エラー：{errorMessage}
             </p>
-            {errorMessage && (
-              <p id="rd-period-error" className="rd-error" role="alert">
-                入力エラー：{errorMessage}
-              </p>
-            )}
-          </fieldset>
-
-          <Card className="rd-result">
-            {result === null ? (
-              <p className="result-placeholder">
-                加入期間を入力すると、ここに退職所得控除額の目安が表示されます。
-              </p>
-            ) : (
-              <div className="result-body">
-                <div className="result-block">
-                  <span className="result-label">あなたの退職所得控除額（目安）</span>
-                  <p className="result-value">{result.deductionAmount.toLocaleString()}円</p>
-                  <span className="rd-result-value-sub">
-                    （{formatManYen(result.deductionAmount)}）
-                  </span>
-                </div>
-
-                <dl className="result-breakdown">
-                  <div className="result-breakdown-row">
-                    <dt>加入期間</dt>
-                    <dd>
-                      {years}年{months}か月
-                    </dd>
-                  </div>
-                  <div className="result-breakdown-row">
-                    <dt>控除計算上の年数</dt>
-                    <dd>{result.deductionYears}年</dd>
-                  </div>
-                  <div className="result-breakdown-row">
-                    <dt>計算式</dt>
-                    <dd>{result.formulaLabel}</dd>
-                  </div>
-                </dl>
-
-                <p className="result-note">
-                  ※本シミュレーターは退職所得控除額の目安を確認するためのものです。実際の退職所得控除額や税額は、退職金の受取状況、iDeCoの受取方法、受取時期、過去の退職手当等の状況などによって異なる場合があります。最新の税制については国税庁などの公的情報をご確認ください。
-                </p>
-              </div>
-            )}
-          </Card>
-        </div>
+          ) : (
+            <div className="rd-period-highlight">
+              <span className="field-hint">加入期間</span>
+              <p className="rd-period-highlight-value">{enrollmentYears}年</p>
+            </div>
+          )}
+        </fieldset>
       </div>
     </section>
   )

@@ -30,7 +30,6 @@
 }
 
 .rd-example2-intro {
-  max-width: 70ch;
   color: var(--color-text);
   margin-bottom: var(--space-4);
 }
@@ -77,6 +76,82 @@
   margin-block: var(--space-3);
 }
 
+.rd-prior-payment-form {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  font-size: 1rem;
+}
+
+.rd-prior-payment-form .field-hint {
+  font-size: 0.9375rem;
+}
+
+.rd-radio-group {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.rd-radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.rd-radio-group input[type='radio'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-teal-600);
+}
+
+.rd-prior-payment-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.rd-prior-payment-fields .field {
+  flex: 1;
+  min-width: 160px;
+}
+
+.rd-past-payments-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.rd-past-payment-entry {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background: var(--color-surface);
+}
+
+.rd-past-payment-entry-title {
+  padding: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.rd-past-payment-entry .btn {
+  align-self: flex-start;
+  min-height: 36px;
+  padding-inline: var(--space-3);
+  font-size: 0.8125rem;
+}
+
 .rd-adjustment-note {
   margin-top: var(--space-4);
   padding-top: var(--space-4);
@@ -101,12 +176,38 @@
   font-variant-numeric: tabular-nums;
 }
 
+.rd-quiet-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left-width: 4px;
+  border-left-color: var(--color-text-muted);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.rd-quiet-box-block + .rd-quiet-box-block {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.rd-quiet-box-title {
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+
 .rd-notice-section {
-  padding-block: 0 var(--space-7);
+  padding-block: 0;
+  margin-bottom: var(--space-7);
 }
 
 .rd-sources-section {
-  padding-block: 0 var(--space-7);
+  padding-block: 0;
+  margin-bottom: var(--space-7);
 }
 
 .rd-back {
@@ -124,6 +225,7 @@
 
   .rd-notice-section,
   .rd-sources-section {
-    padding-block: 0 var(--space-5);
+    padding-block: 0;
+    margin-bottom: var(--space-5);
   }
 }
