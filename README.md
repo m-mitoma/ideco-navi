@@ -32,7 +32,7 @@ iDeCoという制度の名前は知っているものの自身の掛金上限や
 
 ## 開発工程
 
-![開発工程](docs/development-process/ideco-navi-development-process.png)
+![開発工程](docs/development-process/development-process.png)
 
 ## サイト構成
 
