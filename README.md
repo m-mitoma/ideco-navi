@@ -32,13 +32,13 @@ iDeCoという制度の名前は知っているものの自身の掛金上限や
 
 ## 開発工程
 
-![開発工程](docs/development-process/development-process.png)
+![開発工程](docs/development-process/development-process2.png)
 
 ## サイト構成
 
 サイト全体の構成は以下の図の通りです。
 
-![サイト構成図](docs/site-structure/site-structure.png)
+![サイト構成図](docs/site-structure/site-structure2.png)
 
 ## 主な機能
 
@@ -189,18 +189,18 @@ Vitest・React Testing Libraryを導入し主要な計算ロジックとUIの動
 - FAQの内容設計
 - UI/UXの方向性
 - サイト構成
+- React、コンポーネント作成
+- フォーム処理
+- API処理
+- microCMS連携
+- React Routerの実装
 
 ### AI
 
 Claude CodeなどのAIを活用して
 
-- React / TypeScriptの実装
-- コンポーネント作成
+- TypeScriptの実装
 - CSS実装
-- フォーム処理
-- API処理
-- microCMS連携
-- React Routerの実装
 - ビルドエラー等の修正
 - テストコード作成
 
