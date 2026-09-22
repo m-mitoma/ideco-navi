@@ -17,6 +17,12 @@ function Header() {
             詳細ページ
           </NavLink>
           <NavLink
+            to="/contribution-simulator"
+            className={({ isActive }) => (isActive ? 'is-active' : '')}
+          >
+            掛金シミュレーター
+          </NavLink>
+          <NavLink
             to="/retirement-deduction"
             className={({ isActive }) => (isActive ? 'is-active' : '')}
           >

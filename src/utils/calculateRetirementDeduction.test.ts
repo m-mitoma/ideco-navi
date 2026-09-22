@@ -6,12 +6,16 @@ import {
   calculateEquivalentYears,
   calculateOverlapAdjustment,
   calculateRetirementDeduction,
+  calculateTaxableRetirementIncome,
+  determineReceiveOrder,
   formatManYen,
   isWithinOverlapAdjustmentPeriod,
   monthsToDeductionYears,
   validateAgeRangeInput,
+  validateIdecoLumpSumAmountInput,
   validatePastPaymentAgeInput,
   validatePastPaymentAmountInput,
+  validatePastPaymentServiceYearsInput,
   validateRetirementPeriodInput,
 } from './calculateRetirementDeduction'
 import { MAX_IDECO_AGE_EXCLUSIVE, MIN_IDECO_AGE } from './simulateContribution'
@@ -113,6 +117,13 @@ describe('calculateRetirementDeduction', () => {
     expect(result.formulaLabel).toBe('40万円 × 20年')
   })
 
+  it('20年1か月相当（20年0か月の翌月、端数切り上げで21年）の場合', () => {
+    const result = calculateRetirementDeduction(20, 1)
+    expect(result.deductionYears).toBe(21)
+    expect(result.deductionAmount).toBe(8_700_000)
+    expect(result.formulaLabel).toBe('800万円 + 70万円 ×（21年 − 20年）')
+  })
+
   it('30年0か月の場合', () => {
     const result = calculateRetirementDeduction(30, 0)
     expect(result.deductionYears).toBe(30)
@@ -138,8 +149,8 @@ describe('formatManYen', () => {
   })
 })
 
-describe('calculateEquivalentYears', () => {
-  it('前職の退職金額を40万円で割った年数（端数切り捨て）を返す', () => {
+describe('calculateEquivalentYears（所令70条・表2）', () => {
+  it('800万円以下の場合、金額 ÷ 40万円（端数切り捨て）を返す', () => {
     expect(calculateEquivalentYears(1_000_000)).toBe(2)
     expect(calculateEquivalentYears(4_000_000)).toBe(10)
     expect(calculateEquivalentYears(8_000_000)).toBe(20)
@@ -148,6 +159,17 @@ describe('calculateEquivalentYears', () => {
   it('1年未満の端数は切り捨てる（最低年数の補正はしない）', () => {
     expect(calculateEquivalentYears(399_999)).toBe(0)
     expect(calculateEquivalentYears(0)).toBe(0)
+  })
+
+  it('800万円を超える場合、(金額－800万円) ÷ 70万円 + 20年（端数切り捨て）を返す', () => {
+    // (1500万円－800万円)÷70万円+20年 = 700万円÷70万円+20年 = 10+20 = 30年
+    expect(calculateEquivalentYears(15_000_000)).toBe(30)
+  })
+
+  it('800万円ちょうどの境界で2つの式が連続する（不連続な段差が生じない）', () => {
+    expect(calculateEquivalentYears(8_000_000)).toBe(20)
+    // 800万円を1円超えても急に大きく変わらない（端数切り捨てのため800万円の場合と同じ20年）
+    expect(calculateEquivalentYears(8_000_001)).toBe(20)
   })
 })
 
@@ -264,131 +286,246 @@ describe('validatePastPaymentAgeInput', () => {
   })
 })
 
+describe('validatePastPaymentServiceYearsInput', () => {
+  it('空欄はエラーになる', () => {
+    expect(validatePastPaymentServiceYearsInput('', 45)).toBe('勤続期間を入力してください。')
+  })
+
+  it('0以下はエラーになる', () => {
+    expect(validatePastPaymentServiceYearsInput('0', 45)).toBe('勤続期間は1年以上で入力してください。')
+  })
+
+  it('60年を超えるとエラーになる', () => {
+    expect(validatePastPaymentServiceYearsInput('61', 45)).toBe(
+      '勤続期間が想定範囲（60年）を超えています。入力内容をご確認ください。',
+    )
+  })
+
+  it('受け取った年齢を超える勤続期間はエラーになる', () => {
+    expect(validatePastPaymentServiceYearsInput('50', 45)).toBe(
+      '勤続期間が受け取った年齢を超えています。入力内容をご確認ください。',
+    )
+  })
+
+  it('小数・文字列はエラーになる', () => {
+    expect(validatePastPaymentServiceYearsInput('10.5', 45)).toBe(
+      '勤続期間は0以上の整数（年）で入力してください。',
+    )
+  })
+
+  it('正常な勤続期間はエラーにならない', () => {
+    expect(validatePastPaymentServiceYearsInput('10', 45)).toBeNull()
+    expect(validatePastPaymentServiceYearsInput('45', 45)).toBeNull()
+  })
+})
+
+describe('determineReceiveOrder', () => {
+  it('過去の退職金の年齢がiDeCoの受取年齢以前なら過去の退職金が先（past-then-ideco）', () => {
+    expect(determineReceiveOrder(45, 60)).toBe('past-then-ideco')
+    expect(determineReceiveOrder(60, 60)).toBe('past-then-ideco')
+  })
+
+  it('過去の退職金の年齢がiDeCoの受取年齢より後ならiDeCoが先（ideco-then-past）', () => {
+    expect(determineReceiveOrder(65, 60)).toBe('ideco-then-past')
+  })
+})
+
 describe('isWithinOverlapAdjustmentPeriod', () => {
-  it('19年以内であれば対象になる（境界値）', () => {
+  it('ケースA（会社の退職金→iDeCo）は19年以内であれば対象になる（境界値）', () => {
     expect(isWithinOverlapAdjustmentPeriod(41, 60)).toBe(true) // 60-41=19年
   })
 
-  it('19年を超えると対象外になる（境界値）', () => {
+  it('ケースAは19年を超えると対象外になる（境界値）', () => {
     expect(isWithinOverlapAdjustmentPeriod(40, 60)).toBe(false) // 60-40=20年
+  })
+
+  it('ケースB（iDeCo→会社の退職金）は9年以内であれば対象になる（境界値）', () => {
+    expect(isWithinOverlapAdjustmentPeriod(69, 60)).toBe(true) // 69-60=9年
+  })
+
+  it('ケースBは9年を超えると対象外になる（境界値）', () => {
+    expect(isWithinOverlapAdjustmentPeriod(70, 60)).toBe(false) // 70-60=10年
   })
 })
 
 describe('calculateOverlapAdjustment', () => {
-  it('退職金を1件登録した場合、その受取年齢・退職金額が計算に反映される', () => {
-    // 60歳-45歳=15年 ≦ 19年 → 調整の対象
-    const result = calculateOverlapAdjustment([{ age: 45, amount: 1_000_000 }], 60)
-    expect(result.qualifyingCount).toBe(1)
-    expect(result.qualifyingAmount).toBe(1_000_000)
-    expect(result.equivalentYears).toBe(2)
-    expect(result.overlapYears).toBe(2)
-    expect(result.overlapDeduction).toBe(800_000)
+  it('過去の退職金なし（空配列）は調整なしになる', () => {
+    const result = calculateOverlapAdjustment([], 30, 60)
+    expect(result.qualifyingCount).toBe(0)
+    expect(result.overlapDeduction).toBe(0)
+    expect(result.hasFuturePaymentNotice).toBe(false)
   })
 
-  it('受取年齢50歳を入力した場合、50歳が計算に反映される（45歳のケースと独立して判定できる）', () => {
-    // 60歳-50歳=10年 ≦ 19年 → 調整の対象
-    const result = calculateOverlapAdjustment([{ age: 50, amount: 1_000_000 }], 60)
-    expect(result.qualifyingCount).toBe(1)
-    expect(result.overlapYears).toBe(2)
+  it('過去の退職金の勤続期間がiDeCoの加入期間と重複しない場合は調整なし', () => {
+    // 過去の退職金: 25歳で受給、勤続5年（20歳〜25歳）。iDeCo加入期間は30歳〜60歳で重複しない。
+    const result = calculateOverlapAdjustment([{ age: 25, amount: 2_000_000, serviceYears: 5 }], 30, 60)
+    expect(result.totalOverlapYears).toBe(0)
+    expect(result.overlapDeduction).toBe(0)
   })
 
-  it('受取年齢が19年を超えて離れている場合は、その退職金は調整の対象外になる（境界値）', () => {
-    // 60歳-41歳=19年 ≦ 19年 → 対象
-    const withinRange = calculateOverlapAdjustment([{ age: 41, amount: 1_000_000 }], 60)
-    expect(withinRange.qualifyingCount).toBe(1)
-    // 60歳-40歳=20年 > 19年 → 対象外
-    const outOfRange = calculateOverlapAdjustment([{ age: 40, amount: 1_000_000 }], 60)
+  it('過去の勤続期間が全期間iDeCoの加入期間と重複する場合、その年数がそのまま重複年数になる', () => {
+    // 過去の退職金: 45歳で受給、勤続10年（35歳〜45歳）。500万円は10年の通常控除(400万円)を上回るため、
+    // みなし期間の特例は適用されず、実際の勤続期間がそのまま使われる。
+    const result = calculateOverlapAdjustment(
+      [{ age: 45, amount: 5_000_000, serviceYears: 10 }],
+      30,
+      60,
+    )
+    expect(result.qualifyingCount).toBe(1)
+    expect(result.totalOverlapYears).toBe(10)
+    expect(result.overlapDeduction).toBe(4_000_000)
+  })
+
+  it('受取額がその勤続期間の通常の控除額を下回る場合、金額から逆算した年数（表2）に短縮される', () => {
+    // 過去の退職金: 45歳で受給、勤続30年（15歳〜45歳、テスト用の値）。
+    // 30年の通常控除は1500万円だが、受取額は200万円で大幅に下回るため、
+    // みなし期間 = 200万円 ÷ 40万円 = 5年（40歳〜45歳）に短縮される。
+    const result = calculateOverlapAdjustment(
+      [{ age: 45, amount: 2_000_000, serviceYears: 30 }],
+      30,
+      60,
+    )
+    expect(result.details[0].deemedServiceYears).toBe(5)
+    // みなし期間40歳〜45歳は、iDeCo加入期間30歳〜60歳に完全に含まれる → 重複5年
+    expect(result.totalOverlapYears).toBe(5)
+    expect(result.overlapDeduction).toBe(2_000_000)
+  })
+
+  it('重複年数はiDeCoの加入期間の年数を上限とする', () => {
+    // 過去の退職金2件、それぞれの重複年数を合計するとiDeCo加入期間（10年）を超えるケース
+    const result = calculateOverlapAdjustment(
+      [
+        { age: 35, amount: 4_000_000, serviceYears: 10 }, // 25〜35歳、iDeCo期間(30〜40)との重複5年
+        { age: 40, amount: 4_000_000, serviceYears: 10 }, // 30〜40歳、iDeCo期間(30〜40)との重複10年
+      ],
+      30,
+      40,
+    )
+    expect(result.totalOverlapYears).toBe(10) // 5+10=15だが、加入期間10年が上限
+  })
+
+  it('19年を超えて過去に受け取った退職金は対象外になる（境界値）', () => {
+    const outOfRange = calculateOverlapAdjustment(
+      [{ age: 40, amount: 1_000_000, serviceYears: 5 }],
+      20,
+      60,
+    ) // 60-40=20年 > 19年
     expect(outOfRange.qualifyingCount).toBe(0)
-    expect(outOfRange.overlapYears).toBe(0)
     expect(outOfRange.overlapDeduction).toBe(0)
   })
 
-  it('退職金額500万円の場合、相当する期間・差し引く金額に反映される', () => {
-    const result = calculateOverlapAdjustment([{ age: 45, amount: 5_000_000 }], 60)
-    expect(result.equivalentYears).toBe(12)
-    expect(result.overlapDeduction).toBe(4_800_000)
-  })
-
-  it('退職金額1,000万円の場合、相当する期間・差し引く金額に反映される（長期の計算式に切り替わる）', () => {
-    const result = calculateOverlapAdjustment([{ age: 45, amount: 10_000_000 }], 60)
-    expect(result.equivalentYears).toBe(25)
-    expect(result.overlapDeduction).toBe(11_500_000)
-  })
-
-  it('退職金額0円の場合、差し引く金額は0円になる（80万円の最低保証は適用しない）', () => {
-    const result = calculateOverlapAdjustment([{ age: 45, amount: 0 }], 60)
-    expect(result.equivalentYears).toBe(0)
-    expect(result.overlapYears).toBe(0)
-    expect(result.overlapDeduction).toBe(0)
-  })
-
-  it('登録がない場合（空配列）は調整なしになる', () => {
-    const result = calculateOverlapAdjustment([], 60)
+  it('ケースB：iDeCoの後、前年以前9年内に会社の退職金を受け取る場合は、今回のiDeCo控除額には影響しないが案内フラグが立つ', () => {
+    const result = calculateOverlapAdjustment(
+      [{ age: 65, amount: 5_000_000, serviceYears: 10 }], // iDeCo受取(60歳)の5年後
+      30,
+      60,
+    )
     expect(result.qualifyingCount).toBe(0)
+    expect(result.totalOverlapYears).toBe(0)
     expect(result.overlapDeduction).toBe(0)
+    expect(result.hasFuturePaymentNotice).toBe(true)
+    expect(result.details[0].receiveOrder).toBe('ideco-then-past')
+    expect(result.details[0].affectsCurrentDeduction).toBe(false)
   })
 
-  it('退職金を2件登録した場合、両方のデータが計算に使用される', () => {
-    // 退職金1: 45歳・500万円（60-45=15年 ≦ 19年 → 対象）
-    // 退職金2: 52歳・100万円（60-52=8年 ≦ 19年 → 対象）
+  it('ケースB：9年を超えて後に受け取る場合は案内フラグも立たない', () => {
+    const result = calculateOverlapAdjustment(
+      [{ age: 70, amount: 5_000_000, serviceYears: 10 }], // iDeCo受取(60歳)の10年後
+      30,
+      60,
+    )
+    expect(result.hasFuturePaymentNotice).toBe(false)
+  })
+
+  it('複数件登録した場合、各件が独立して判定され、対象になったものだけが合算される', () => {
     const result = calculateOverlapAdjustment(
       [
-        { age: 45, amount: 5_000_000 },
-        { age: 52, amount: 1_000_000 },
+        { age: 45, amount: 5_000_000, serviceYears: 10 }, // 60-45=15年 ≦ 19年 → 対象
+        { age: 48, amount: 1_000_000, serviceYears: 3 }, // 60-48=12年 ≦ 19年 → 対象
       ],
+      30,
       60,
     )
     expect(result.qualifyingCount).toBe(2)
-    expect(result.qualifyingAmount).toBe(6_000_000)
-    // 相当する期間: 600万円 ÷ 40万円 = 15年
-    expect(result.equivalentYears).toBe(15)
-    expect(result.overlapDeduction).toBe(6_000_000)
   })
 
-  it('3件以上登録した場合も、19年以内のものだけが合算される', () => {
+  it('19年より前の退職金は判定自体から除外され、重複計算に含まれない', () => {
     const result = calculateOverlapAdjustment(
       [
-        { age: 45, amount: 1_000_000 }, // 60-45=15年 → 対象
-        { age: 52, amount: 1_000_000 }, // 60-52=8年 → 対象
-        { age: 30, amount: 1_000_000 }, // 60-30=30年 → 対象外
+        { age: 45, amount: 5_000_000, serviceYears: 10 }, // 対象
+        { age: 20, amount: 1_000_000, serviceYears: 5 }, // 60-20=40年 > 19年 → 対象外
       ],
+      30,
       60,
     )
-    expect(result.qualifyingCount).toBe(2)
-    expect(result.qualifyingAmount).toBe(2_000_000)
+    expect(result.qualifyingCount).toBe(1)
+    expect(result.totalOverlapYears).toBe(10)
+  })
+})
+
+describe('validateIdecoLumpSumAmountInput', () => {
+  it('空欄はエラーになる', () => {
+    expect(validateIdecoLumpSumAmountInput('')).toBe('iDeCo一時金の受取額を入力してください。')
   })
 
-  it('1件だけ削除しても、残りのデータで正しく再計算される', () => {
-    const before = calculateOverlapAdjustment(
-      [
-        { age: 45, amount: 5_000_000 },
-        { age: 52, amount: 1_000_000 },
-      ],
-      60,
+  it('マイナス値はエラーになる', () => {
+    expect(validateIdecoLumpSumAmountInput('-1000000')).toBe(
+      'iDeCo一時金の受取額は0円以上で入力してください。',
     )
-    // 2件目を削除した状態を再現
-    const after = calculateOverlapAdjustment([{ age: 45, amount: 5_000_000 }], 60)
-
-    expect(before.qualifyingCount).toBe(2)
-    expect(after.qualifyingCount).toBe(1)
-    expect(after.qualifyingAmount).toBe(5_000_000)
-    expect(after).not.toEqual(before)
   })
 
-  it('受取年齢・退職金額を変えると、計算に使用される値がコード内の固定値ではなく入力値に連動する', () => {
-    const caseA = calculateOverlapAdjustment([{ age: 30, amount: 4_000_000 }], 65)
-    const caseB = calculateOverlapAdjustment([{ age: 50, amount: 8_000_000 }], 55)
+  it('0円はエラーにならない（既存の金額入力の方針を踏襲）', () => {
+    expect(validateIdecoLumpSumAmountInput('0')).toBeNull()
+  })
 
-    // 30歳受給・65歳受取: 65-30=35年 > 19年 → 対象外
-    expect(caseA.qualifyingCount).toBe(0)
-    expect(caseA.overlapDeduction).toBe(0)
+  it('小数・文字列はエラーになる', () => {
+    expect(validateIdecoLumpSumAmountInput('1500.5')).toBe(
+      'iDeCo一時金の受取額は整数（円単位）で入力してください。',
+    )
+    expect(validateIdecoLumpSumAmountInput('abc')).toBe(
+      'iDeCo一時金の受取額は整数（円単位）で入力してください。',
+    )
+  })
 
-    // 50歳受給・55歳受取: 55-50=5年 ≦ 19年 → 対象、相当する期間は8,000,000÷40万円=20年
-    expect(caseB.qualifyingCount).toBe(1)
-    expect(caseB.equivalentYears).toBe(20)
-    expect(caseB.overlapDeduction).toBe(8_000_000)
+  it('正常な金額はエラーにならない', () => {
+    expect(validateIdecoLumpSumAmountInput('15000000')).toBeNull()
+  })
+})
 
-    // 同じ「45歳」を使っていれば起きないはずの違いが出ることを確認
-    expect(caseA).not.toEqual(caseB)
+describe('calculateTaxableRetirementIncome', () => {
+  it('ケース1: iDeCo一時金1,500万円・退職所得控除1,420万円 → 残額80万円・課税退職所得金額40万円', () => {
+    const result = calculateTaxableRetirementIncome(15_000_000, 14_200_000)
+    expect(result.remainingAmount).toBe(800_000)
+    expect(result.taxableRetirementIncome).toBe(400_000)
+  })
+
+  it('ケース2: iDeCo一時金1,000万円・退職所得控除1,420万円（下回る） → 残額0円・課税退職所得金額0円', () => {
+    const result = calculateTaxableRetirementIncome(10_000_000, 14_200_000)
+    expect(result.remainingAmount).toBe(0)
+    expect(result.taxableRetirementIncome).toBe(0)
+  })
+
+  it('ケース3: iDeCo一時金1,420万円・退職所得控除1,420万円（ちょうど同額） → 残額0円・課税退職所得金額0円', () => {
+    const result = calculateTaxableRetirementIncome(14_200_000, 14_200_000)
+    expect(result.remainingAmount).toBe(0)
+    expect(result.taxableRetirementIncome).toBe(0)
+  })
+
+  it('ケース4: iDeCo一時金2,000万円・退職所得控除1,420万円 → 残額580万円・課税退職所得金額290万円', () => {
+    const result = calculateTaxableRetirementIncome(20_000_000, 14_200_000)
+    expect(result.remainingAmount).toBe(5_800_000)
+    expect(result.taxableRetirementIncome).toBe(2_900_000)
+  })
+
+  it('残額がマイナスになる場合でも0円未満にはならない（マイナス表示をしない）', () => {
+    const result = calculateTaxableRetirementIncome(0, 14_200_000)
+    expect(result.remainingAmount).toBe(0)
+    expect(result.taxableRetirementIncome).toBe(0)
+  })
+
+  it('残額が奇数円の場合、1/2の端数は切り捨てる', () => {
+    const result = calculateTaxableRetirementIncome(14_200_001, 14_200_000)
+    expect(result.remainingAmount).toBe(1)
+    expect(result.taxableRetirementIncome).toBe(0)
   })
 })

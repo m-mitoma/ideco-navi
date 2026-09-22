@@ -3,6 +3,7 @@ import Layout from './components/layout/Layout'
 import HomePage from './pages/HomePage'
 import AboutPage from './pages/AboutPage'
 import RetirementDeductionPage from './pages/RetirementDeductionPage'
+import ContributionSimulatorPage from './pages/ContributionSimulatorPage'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/retirement-deduction" element={<RetirementDeductionPage />} />
+        <Route path="/contribution-simulator" element={<ContributionSimulatorPage />} />
       </Route>
     </Routes>
   )

@@ -15,6 +15,7 @@ import {
   stripCommas,
   validateAgeInput,
   validateAnnualIncomeInput,
+  validateMonthlyAmountInput,
 } from '../../utils/simulateContribution'
 import './SimulatorSection.css'
 
@@ -50,6 +51,28 @@ function SimulatorSection({ id, data, isLoading, error }: SimulatorSectionProps)
   const ageError = useMemo(() => validateAgeInput(ageInput), [ageInput])
   const incomeError = useMemo(() => validateAnnualIncomeInput(incomeInput), [incomeInput])
 
+  // 掛金額の上限チェックにどちらの制度（現在／2026年12月以降）を使うか。
+  // 結果表示は従来どおり現在・将来の両方を並べて見せるが、掛金額の上限チェックは
+  // 「今どちらの制度を前提に金額を決めたいか」をユーザーに選んでもらう必要があるため、
+  // 別途この選択を持つ。
+  const [limitPeriod, setLimitPeriod] = useState<'current' | 'future'>('current')
+
+  // 掛金額の上限チェックに使う拠出限度額。年齢・企業年金の状況・上で選んだ制度から、
+  // 既存のロジック（pickParticipantGroup/findCategory）で算出される区分の
+  // monthlyLimitをそのまま使う（新たに上限値をハードコードしない）。
+  const monthlyLimit = useMemo(() => {
+    if (!data) {
+      return null
+    }
+    const group = pickParticipantGroup({ hasCompanyPension, hasCorporateDc })
+    const ruleSet = limitPeriod === 'future' ? data.futureRules : data.currentRules
+    return findCategory(ruleSet, group)?.monthlyLimit ?? null
+  }, [data, hasCompanyPension, hasCorporateDc, limitPeriod])
+  const monthlyAmountError = useMemo(
+    () => validateMonthlyAmountInput(monthlyAmountInput, monthlyLimit),
+    [monthlyAmountInput, monthlyLimit],
+  )
+
   function handleAgeChange(event: ChangeEvent<HTMLInputElement>) {
     if (isEditableIntegerInput(event.target.value)) {
       setAgeInput(event.target.value)
@@ -73,7 +96,7 @@ function SimulatorSection({ id, data, isLoading, error }: SimulatorSectionProps)
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!data || ageError || incomeError) {
+    if (!data || ageError || incomeError || monthlyAmountError) {
       return
     }
 
@@ -149,6 +172,34 @@ function SimulatorSection({ id, data, isLoading, error }: SimulatorSectionProps)
                 )}
               </div>
 
+              <div className="field">
+                <p className="field-hint">掛金額の上限チェックに使う制度</p>
+                <div
+                  className="simulator-radio-group"
+                  role="radiogroup"
+                  aria-label="掛金額の上限チェックに使う制度"
+                >
+                  <label>
+                    <input
+                      type="radio"
+                      name="sim-limit-period"
+                      checked={limitPeriod === 'current'}
+                      onChange={() => setLimitPeriod('current')}
+                    />
+                    {data?.currentRules.label ?? '現在の制度'}
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="sim-limit-period"
+                      checked={limitPeriod === 'future'}
+                      onChange={() => setLimitPeriod('future')}
+                    />
+                    {data?.futureRules.label ?? '2026年12月以降の制度'}
+                  </label>
+                </div>
+              </div>
+
               <div className="field field-checkbox">
                 <label htmlFor="sim-has-pension">
                   <input
@@ -181,7 +232,13 @@ function SimulatorSection({ id, data, isLoading, error }: SimulatorSectionProps)
                   inputMode="numeric"
                   value={formatIntegerInputWithCommas(monthlyAmountInput)}
                   onChange={handleMonthlyAmountChange}
+                  aria-describedby={monthlyAmountError ? 'sim-amount-error' : undefined}
                 />
+                {monthlyAmountError && (
+                  <p id="sim-amount-error" className="field-error" role="alert">
+                    {monthlyAmountError}
+                  </p>
+                )}
               </div>
 
               <Button type="submit">入力内容で確認する</Button>

@@ -85,6 +85,31 @@ export function validateAnnualIncomeInput(raw: string): string | null {
   return null
 }
 
+// 毎月の掛金額の入力チェック。年齢・年収のバリデーションと同じ考え方で実装している。
+// monthlyLimitは、現在選択されている年齢・企業年金の状況から算出された拠出限度額
+// （pickParticipantGroup/findCategoryの結果）をそのまま渡す。上限値をここで新たに
+// ハードコードすることはしない。monthlyLimitがまだ算出できない場合（データ未取得・
+// 該当区分なしの場合）はnullを渡すと、上限チェックはスキップされる。
+export function validateMonthlyAmountInput(
+  raw: string,
+  monthlyLimit: number | null,
+): string | null {
+  if (raw.trim() === '') {
+    return '掛金額を入力してください。'
+  }
+  if (!/^-?\d+$/.test(raw)) {
+    return '掛金額は整数（円単位）で入力してください。'
+  }
+  const amount = Number(raw)
+  if (amount < 0) {
+    return '掛金額は0円以上で入力してください。'
+  }
+  if (monthlyLimit !== null && amount > monthlyLimit) {
+    return `掛金額は月額${monthlyLimit.toLocaleString()}円以下で入力してください。`
+  }
+  return null
+}
+
 // 会社員の区分は「企業年金・企業型DCがあるかどうか」だけで決める。
 // 年収はここでは使わない（年収だけで拠出限度額を決めないため）。
 export function pickParticipantGroup(input: {

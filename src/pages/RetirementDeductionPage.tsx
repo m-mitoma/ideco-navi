@@ -12,10 +12,13 @@ import {
   calculateEnrollmentYears,
   calculateOverlapAdjustment,
   calculateRetirementDeduction,
+  calculateTaxableRetirementIncome,
   formatManYen,
   validateAgeRangeInput,
+  validateIdecoLumpSumAmountInput,
   validatePastPaymentAgeInput,
   validatePastPaymentAmountInput,
+  validatePastPaymentServiceYearsInput,
 } from '../utils/calculateRetirementDeduction'
 import {
   formatIntegerInputWithCommas,
@@ -32,10 +35,17 @@ const AGE_OPTIONS = Array.from(
   (_, index) => MIN_IDECO_AGE + index,
 )
 
+// 過去の退職金に対応する勤続期間の選択肢（1〜60年）。
+const SERVICE_YEARS_OPTIONS = Array.from({ length: 60 }, (_, index) => index + 1)
+
 const sources = [
   {
     name: '国税庁「No.1420 退職金を受け取ったとき（退職所得）」',
     url: 'https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1420.htm',
+  },
+  {
+    name: '東京国税局「前の退職手当等が同一年に複数ある場合の退職所得控除額の計算の特例について」',
+    url: 'https://www.nta.go.jp/about/organization/tokyo/bunshokaito/gensenshotoku/240322/01.htm',
   },
   {
     name: 'iDeCo公式サイト（国民年金基金連合会）「よくあるご質問」',
@@ -54,12 +64,13 @@ interface PastPaymentEntry {
   id: string
   age: number
   amountInput: string
+  serviceYears: number
 }
 
 let pastPaymentIdCounter = 0
 function createPastPaymentEntry(): PastPaymentEntry {
   pastPaymentIdCounter += 1
-  return { id: `past-payment-${pastPaymentIdCounter}`, age: 45, amountInput: '' }
+  return { id: `past-payment-${pastPaymentIdCounter}`, age: 45, amountInput: '', serviceYears: 10 }
 }
 
 function RetirementDeductionPage() {
@@ -83,13 +94,14 @@ function RetirementDeductionPage() {
     [startAge, endAge],
   )
 
-  // シミュレーター本体と同じ関数・同じ加入期間で計算する（退職所得控除額の基準値）。
+  // シミュレーター本体と同じ関数・同じ加入期間で計算する、調整前の基本の退職所得控除額。
   const baseResult = useMemo(() => {
     if (errorMessage) {
       return null
     }
     return calculateRetirementDeduction(enrollmentYears, 0)
   }, [enrollmentYears, errorMessage])
+  const basicDeductionAmount = baseResult?.deductionAmount ?? null
 
   function handleAddPastPayment() {
     setPastPayments((prev) => [...prev, createPastPaymentEntry()])
@@ -111,13 +123,20 @@ function RetirementDeductionPage() {
     )
   }
 
+  function handlePastPaymentServiceYearsChange(id: string, serviceYears: number) {
+    setPastPayments((prev) =>
+      prev.map((payment) => (payment.id === id ? { ...payment, serviceYears } : payment)),
+    )
+  }
+
   const pastPaymentErrors = useMemo(
     () =>
       new Map(
         pastPayments.map((payment) => [
           payment.id,
           validatePastPaymentAmountInput(payment.amountInput) ??
-            validatePastPaymentAgeInput(payment.age),
+            validatePastPaymentAgeInput(payment.age) ??
+            validatePastPaymentServiceYearsInput(String(payment.serviceYears), payment.age),
         ]),
       ),
     [pastPayments],
@@ -130,33 +149,73 @@ function RetirementDeductionPage() {
   const validPastPayments = useMemo<PastPayment[]>(
     () =>
       pastPayments
-        .map((payment) => ({ age: payment.age, amount: parseIntegerInput(payment.amountInput) }))
+        .map((payment) => ({
+          age: payment.age,
+          amount: parseIntegerInput(payment.amountInput),
+          serviceYears: payment.serviceYears,
+        }))
         .filter((payment): payment is PastPayment => payment.amount !== null),
     [pastPayments],
   )
 
-  // 過去に受け取った退職金の受け取りがない・未回答・入力が不正な場合はnull。
+  // 過去に退職金を受け取った回答が「あり」で、入力エラーがない場合のみ、重複期間の調整を計算する。
   const overlapAdjustment = useMemo(() => {
     if (hasPastPayments !== 'yes' || hasPastPaymentError) {
       return null
     }
-    return calculateOverlapAdjustment(validPastPayments, endAge)
-  }, [hasPastPayments, hasPastPaymentError, validPastPayments, endAge])
+    return calculateOverlapAdjustment(validPastPayments, startAge, endAge)
+  }, [hasPastPayments, hasPastPaymentError, validPastPayments, startAge, endAge])
 
-  // 調整後の退職所得控除額（目安）。過去の退職金の受け取りがない場合は基準値と同じ額になる。
+  // 調整後の退職所得控除額（目安）。過去の退職金の受け取りがない場合は基本の控除額と同じ額になる。
   // マイナスにはならないよう下限を0円にしている。
   const adjustedDeductionAmount = useMemo(() => {
-    if (!baseResult) {
+    if (basicDeductionAmount === null) {
       return null
     }
     if (hasPastPayments === 'no') {
-      return baseResult.deductionAmount
+      return basicDeductionAmount
     }
     if (!overlapAdjustment) {
       return null
     }
-    return Math.max(0, baseResult.deductionAmount - overlapAdjustment.overlapDeduction)
-  }, [baseResult, hasPastPayments, overlapAdjustment])
+    return Math.max(0, basicDeductionAmount - overlapAdjustment.overlapDeduction)
+  }, [basicDeductionAmount, hasPastPayments, overlapAdjustment])
+
+  // 実際に適用される退職所得控除額（目安）。
+  // 「過去に退職金を受け取ったことがありますか？」に「あり」と回答し、入力が正しい場合だけ
+  // 調整後の控除額を使う。それ以外（未回答・「なし」）は基本の控除額をそのまま使う。
+  // 入力エラーがある間だけは、誤った金額を表示しないようnullにする。
+  const finalDeductionAmount = useMemo(() => {
+    if (basicDeductionAmount === null) {
+      return null
+    }
+    if (hasPastPayments === 'yes' && hasPastPaymentError) {
+      return null
+    }
+    if (hasPastPayments === 'yes' && adjustedDeductionAmount !== null) {
+      return adjustedDeductionAmount
+    }
+    return basicDeductionAmount
+  }, [basicDeductionAmount, hasPastPayments, hasPastPaymentError, adjustedDeductionAmount])
+
+  // iDeCo一時金の課税対象額（課税退職所得金額）の計算に使う入力。
+  // 「あなたの退職所得控除額（目安）」（finalDeductionAmount）を控除額としてそのまま使い、
+  // 退職所得控除まわりの既存ロジックには一切手を加えない。
+  const [idecoLumpSumAmountInput, setIdecoLumpSumAmountInput] = useState('')
+  const idecoLumpSumAmountError = useMemo(
+    () => validateIdecoLumpSumAmountInput(idecoLumpSumAmountInput),
+    [idecoLumpSumAmountInput],
+  )
+  const idecoLumpSumAmount = useMemo(
+    () => parseIntegerInput(idecoLumpSumAmountInput),
+    [idecoLumpSumAmountInput],
+  )
+  const taxableIncomeResult = useMemo(() => {
+    if (finalDeductionAmount === null || idecoLumpSumAmountError || idecoLumpSumAmount === null) {
+      return null
+    }
+    return calculateTaxableRetirementIncome(idecoLumpSumAmount, finalDeductionAmount)
+  }, [finalDeductionAmount, idecoLumpSumAmountError, idecoLumpSumAmount])
 
   return (
     <>
@@ -273,6 +332,31 @@ function RetirementDeductionPage() {
                                   aria-describedby={entryError ? errorId : undefined}
                                 />
                               </div>
+                              <div className="field">
+                                <label htmlFor={`past-payment-service-years-${payment.id}`}>
+                                  対応する勤続期間（年）
+                                </label>
+                                <select
+                                  id={`past-payment-service-years-${payment.id}`}
+                                  value={payment.serviceYears}
+                                  onChange={(event) =>
+                                    handlePastPaymentServiceYearsChange(
+                                      payment.id,
+                                      Number(event.target.value),
+                                    )
+                                  }
+                                  aria-describedby={entryError ? errorId : undefined}
+                                >
+                                  {SERVICE_YEARS_OPTIONS.map((years) => (
+                                    <option key={years} value={years}>
+                                      {years}年
+                                    </option>
+                                  ))}
+                                </select>
+                                <span className="field-hint">
+                                  この退職金の支給の元になった、勤務先での勤続年数です。
+                                </span>
+                              </div>
                             </div>
                             {entryError && (
                               <p id={errorId} className="rd-error" role="alert">
@@ -320,55 +404,60 @@ function RetirementDeductionPage() {
                   overlapAdjustment &&
                   adjustedDeductionAmount !== null && (
                     <div className="rd-adjustment-note">
-                      {overlapAdjustment.overlapDeduction > 0 ? (
-                        <>
-                          <p>
-                            登録した退職金のうち、iDeCoの老齢一時金の受取予定（{endAge}歳）の
-                            <strong>「前年以前19年内」</strong>
-                            に受け取った{overlapAdjustment.qualifyingCount}件（合計
-                            {formatManYen(overlapAdjustment.qualifyingAmount)}
-                            ）が、厚生労働省の資料に
-                            示されている「退職所得控除の調整規定」の対象になります。
-                          </p>
-                          <dl className="result-breakdown">
-                            <div className="result-breakdown-row">
-                              <dt>調整の対象になった退職金の合計</dt>
-                              <dd>{formatManYen(overlapAdjustment.qualifyingAmount)}</dd>
-                            </div>
-                            <div className="result-breakdown-row">
-                              <dt>相当する期間（合計額 ÷ 40万円、端数切り捨て）</dt>
-                              <dd>{overlapAdjustment.equivalentYears}年</dd>
-                            </div>
-                            <div className="result-breakdown-row">
-                              <dt>iDeCo加入期間との重複年数</dt>
-                              <dd>{overlapAdjustment.overlapYears}年</dd>
-                            </div>
-                            <div className="result-breakdown-row">
-                              <dt>差し引く金額</dt>
-                              <dd>
-                                40万円 × {overlapAdjustment.overlapYears}年 ＝{' '}
-                                {formatManYen(overlapAdjustment.overlapDeduction)}
-                              </dd>
-                            </div>
-                          </dl>
-                          {overlapAdjustment.qualifyingCount < pastPayments.length && (
-                            <p className="result-note">
-                              登録した{pastPayments.length}件のうち
-                              {pastPayments.length - overlapAdjustment.qualifyingCount}
-                              件は、前年以前19年内に受け取ったものではないため、調整の対象に含めていません。
+                      {overlapAdjustment.details.map((detail, index) => {
+                        if (detail.receiveOrder === 'ideco-then-past') {
+                          return detail.isWithinLookbackPeriod ? (
+                            <p key={pastPayments[index].id} className="result-note">
+                              退職金{index + 1}（{detail.payment.age}歳）は、iDeCoの受取予定（{endAge}
+                              歳）より後に受け取る想定です。この場合、
+                              <strong>今回のiDeCoの控除額には影響しません</strong>
+                              が、その退職金を受け取る年（前年以前9年内）には、その退職金側の控除額が
+                              調整される可能性があります（本シミュレーターでは計算していません）。
                             </p>
-                          )}
-                        </>
-                      ) : (
-                        <p className="result-note">
-                          登録した退職金は、iDeCoの老齢一時金の受取予定（{endAge}歳）の
-                          「前年以前19年内」にあたらないため、重複期間の調整の対象外です。
-                        </p>
+                          ) : (
+                            <p key={pastPayments[index].id} className="result-note">
+                              退職金{index + 1}（{detail.payment.age}歳）は、iDeCoの受取予定（{endAge}
+                              歳）の「前年以前9年内」にあたらないため、調整の対象外です。
+                            </p>
+                          )
+                        }
+                        return detail.isWithinLookbackPeriod ? (
+                          <p key={pastPayments[index].id} className="result-note">
+                            退職金{index + 1}（{detail.payment.age}歳）は、iDeCoの受取予定（{endAge}
+                            歳）の「前年以前19年内」にあたるため調整の対象です。勤続期間との重複は
+                            {detail.overlapYears}年です。
+                          </p>
+                        ) : (
+                          <p key={pastPayments[index].id} className="result-note">
+                            退職金{index + 1}（{detail.payment.age}歳）は、iDeCoの受取予定（{endAge}
+                            歳）の「前年以前19年内」にあたらないため、調整の対象外です。
+                          </p>
+                        )
+                      })}
+
+                      {overlapAdjustment.overlapDeduction > 0 && (
+                        <dl className="result-breakdown">
+                          <div className="result-breakdown-row">
+                            <dt>調整の対象になった件数</dt>
+                            <dd>{overlapAdjustment.qualifyingCount}件</dd>
+                          </div>
+                          <div className="result-breakdown-row">
+                            <dt>iDeCo加入期間との重複年数（合計）</dt>
+                            <dd>{overlapAdjustment.totalOverlapYears}年</dd>
+                          </div>
+                          <div className="result-breakdown-row">
+                            <dt>差し引く金額</dt>
+                            <dd>
+                              40万円 × {overlapAdjustment.totalOverlapYears}年 ＝{' '}
+                              {formatManYen(overlapAdjustment.overlapDeduction)}
+                            </dd>
+                          </div>
+                        </dl>
                       )}
 
                       <p className="rd-adjustment-note-title">調整後の退職所得控除額（目安）</p>
                       <p className="result-note">
-                        {formatManYen(baseResult.deductionAmount)}（シミュレーターの結果） －{' '}
+                        {formatManYen(basicDeductionAmount ?? 0)}（基本の控除額） －{' '}
                         {formatManYen(overlapAdjustment.overlapDeduction)} ＝{' '}
                         {formatManYen(adjustedDeductionAmount)}
                       </p>
@@ -393,40 +482,166 @@ function RetirementDeductionPage() {
         <div className="container">
           <SectionHeading>あなたの退職所得控除額（目安）</SectionHeading>
           <Card className="rd-result">
-            {baseResult === null ? (
+            {errorMessage ? (
               <p className="result-placeholder">
                 受取予定年齢を加入開始年齢より後にすると、ここに退職所得控除額の目安が表示されます。
               </p>
+            ) : hasPastPayments === 'yes' && hasPastPaymentError ? (
+              <p className="result-placeholder">
+                「過去に受け取った退職金」の入力内容をご確認ください。エラーが解消されると、ここに退職所得控除額の目安が表示されます。
+              </p>
             ) : (
-              <div className="result-body">
-                <div className="result-block">
-                  <p className="result-value">{baseResult.deductionAmount.toLocaleString()}円</p>
-                  <span className="rd-result-value-sub">
-                    （{formatManYen(baseResult.deductionAmount)}）
-                  </span>
+              finalDeductionAmount !== null &&
+              baseResult && (
+                <div className="result-body">
+                  <div className="result-block">
+                    <p className="result-value">{finalDeductionAmount.toLocaleString()}円</p>
+                    <span className="rd-result-value-sub">
+                      （{formatManYen(finalDeductionAmount)}）
+                    </span>
+                  </div>
+
+                  <dl className="result-breakdown">
+                    <div className="result-breakdown-row">
+                      <dt>加入期間</dt>
+                      <dd>{enrollmentYears}年</dd>
+                    </div>
+                    <div className="result-breakdown-row">
+                      <dt>控除計算上の年数</dt>
+                      <dd>{baseResult.deductionYears}年</dd>
+                    </div>
+                    <div className="result-breakdown-row">
+                      <dt>基本の計算式</dt>
+                      <dd>{baseResult.formulaLabel}</dd>
+                    </div>
+                    {overlapAdjustment && overlapAdjustment.overlapDeduction > 0 && (
+                      <div className="result-breakdown-row">
+                        <dt>過去の退職金との重複期間調整</dt>
+                        <dd>－{formatManYen(overlapAdjustment.overlapDeduction)}</dd>
+                      </div>
+                    )}
+                  </dl>
+
+                  <p className="result-note">
+                    ※本シミュレーターは退職所得控除額の目安を確認するためのものです。実際の退職所得控除額や税額は、退職金の受取状況、iDeCoの受取方法、受取時期、過去の退職手当等の状況などによって異なる場合があります。最新の税制については国税庁などの公的情報をご確認ください。
+                  </p>
                 </div>
-
-                <dl className="result-breakdown">
-                  <div className="result-breakdown-row">
-                    <dt>加入期間</dt>
-                    <dd>{enrollmentYears}年</dd>
-                  </div>
-                  <div className="result-breakdown-row">
-                    <dt>控除計算上の年数</dt>
-                    <dd>{baseResult.deductionYears}年</dd>
-                  </div>
-                  <div className="result-breakdown-row">
-                    <dt>計算式</dt>
-                    <dd>{baseResult.formulaLabel}</dd>
-                  </div>
-                </dl>
-
-                <p className="result-note">
-                  ※本シミュレーターは退職所得控除額の目安を確認するためのものです。実際の退職所得控除額や税額は、退職金の受取状況、iDeCoの受取方法、受取時期、過去の退職手当等の状況などによって異なる場合があります。最新の税制については国税庁などの公的情報をご確認ください。
-                </p>
-              </div>
+              )
             )}
           </Card>
+        </div>
+      </section>
+
+      <section id="taxable-income" className="section rd-simulator-section">
+        <div className="container">
+          <SectionHeading>iDeCo一時金の課税対象額</SectionHeading>
+          <Card className="rd-result">
+            <p className="rd-example2-intro">
+              iDeCoを一時金で受け取る場合、受取額から退職所得控除額を差し引き、
+              残額の1/2が課税退職所得金額の計算対象となります。
+            </p>
+
+            <div className="field">
+              <label htmlFor="ideco-lump-sum-amount">iDeCo一時金の受取額（円）</label>
+              <input
+                id="ideco-lump-sum-amount"
+                type="text"
+                inputMode="numeric"
+                value={formatIntegerInputWithCommas(idecoLumpSumAmountInput)}
+                onChange={(event) => {
+                  const stripped = stripCommas(event.target.value)
+                  if (/^-?\d*$/.test(stripped)) {
+                    setIdecoLumpSumAmountInput(stripped)
+                  }
+                }}
+                aria-describedby={idecoLumpSumAmountError ? 'ideco-lump-sum-amount-error' : undefined}
+              />
+              {idecoLumpSumAmountError && (
+                <p id="ideco-lump-sum-amount-error" className="field-error" role="alert">
+                  {idecoLumpSumAmountError}
+                </p>
+              )}
+            </div>
+
+            {finalDeductionAmount === null ? (
+              <p className="result-note">
+                「あなたの退職所得控除額（目安）」が確定すると、ここに課税退職所得金額の目安が表示されます。
+              </p>
+            ) : (
+              taxableIncomeResult && (
+                <div className="result-body">
+                  <dl className="result-breakdown">
+                    <div className="result-breakdown-row">
+                      <dt>iDeCo一時金の受取額</dt>
+                      <dd>{idecoLumpSumAmount!.toLocaleString()}円</dd>
+                    </div>
+                    <div className="result-breakdown-row">
+                      <dt>− 退職所得控除額</dt>
+                      <dd>{finalDeductionAmount.toLocaleString()}円</dd>
+                    </div>
+                    <div className="result-breakdown-row">
+                      <dt>＝ 控除後の残額</dt>
+                      <dd>{taxableIncomeResult.remainingAmount.toLocaleString()}円</dd>
+                    </div>
+                  </dl>
+
+                  <p className="result-note">控除後の残額の1/2が、課税退職所得金額になります。</p>
+
+                  <div className="result-block">
+                    <span className="result-label">課税退職所得金額</span>
+                    <p className="result-value">
+                      {taxableIncomeResult.taxableRetirementIncome.toLocaleString()}円
+                    </p>
+                    <span className="rd-result-value-sub">
+                      （{formatManYen(taxableIncomeResult.taxableRetirementIncome)}）
+                    </span>
+                  </div>
+
+                  <p className="result-note">
+                    ※ここで計算しているのは課税退職所得金額までです。実際の所得税額・住民税額は、
+                    税率や復興特別所得税、他の所得との合算などによって異なるため、本シミュレーターでは
+                    計算していません。正確な税額は税務署・税理士等にご確認ください。
+                  </p>
+                </div>
+              )
+            )}
+          </Card>
+        </div>
+      </section>
+
+      <section id="deduction-exhausted" className="section rd-notice-section">
+        <div className="container">
+          <SectionHeading>退職所得控除を使い切った場合は？</SectionHeading>
+          <div className="article-body">
+            <p>
+              会社の退職金とiDeCoの老齢一時金を両方とも「一時金」で受け取ると、2つの金額の合計が
+              退職所得控除額を超えた部分について、課税対象になる可能性があります（超えた金額が
+              そのまま税額になるわけではなく、超えた金額の1/2が退職所得として扱われ、そこから
+              税額が計算されます）。
+            </p>
+            <div className="rd-timeline">
+              <dl className="rd-timeline-row">
+                <dt>例</dt>
+                <dd>
+                  会社の退職金1,000万円を受け取り、退職所得控除もちょうど1,000万円で使い切ったとします。
+                  この後にiDeCoの老齢一時金500万円を一時金として受け取ると、控除はすでに使い切って
+                  いるため、500万円のうち課税対象になる部分が生じる可能性があります。
+                </dd>
+              </dl>
+            </div>
+            <p>
+              iDeCoは一時金だけでなく、年金として受け取る方法や、一時金と年金を組み合わせる方法が
+              あります。例えば先ほどの500万円を、一時金200万円＋年金300万円のように分けて受け取る
+              こともできます。
+            </p>
+            <p>
+              年金で受け取る場合は、退職所得とは異なる税制が適用されます（公的年金等に係る雑所得として
+              扱われます）。どちらが有利かは、退職金の金額、他の所得の状況、年金を受け取る期間などに
+              よって異なるため、本シミュレーターでは年金で受け取る場合の具体的な税額計算は行っていません。
+              一時金・年金の組み合わせを検討する場合は、税務署・税理士、またはiDeCoの運営管理機関に
+              ご相談ください。
+            </p>
+          </div>
         </div>
       </section>
 
@@ -493,8 +708,11 @@ function RetirementDeductionPage() {
           <NoticeBox title="重要：退職金とiDeCoを両方受け取る場合の注意">
             <p>
               会社の退職金とiDeCoの老齢一時金を別々の時期に受け取る場合、退職所得控除の計算において、
-              過去に受け取った退職手当等との重複期間を調整するしくみがあります。本シミュレーターはこの調整を反映していないため、
-              退職金とiDeCoを両方受け取る予定がある場合は、厚生労働省の資料や税務署などで詳細をご確認ください。
+              過去に受け取った退職手当等との重複期間を調整するしくみがあります。本シミュレーターの
+              「過去に受け取った退職金」欄に必要な情報を入力すると、この調整を反映した控除額の目安を
+              確認できますが、実際の勤続期間の数え方や複数件が重なる場合の扱いなど、細かな点は
+              個別の状況によって異なる場合があります。退職金とiDeCoを両方受け取る予定がある場合は、
+              国税庁や税務署などで詳細をご確認ください。
             </p>
             <p>
               本シミュレーターは退職所得控除額の目安を確認するためのものです。実際の退職所得控除額や税額は、退職金の受取状況、
