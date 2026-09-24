@@ -4,12 +4,10 @@ import HomePage from './pages/HomePage'
 import AboutPage from './pages/AboutPage'
 import RetirementDeductionPage from './pages/RetirementDeductionPage'
 import ContributionSimulatorPage from './pages/ContributionSimulatorPage'
-import { usePageTracking } from './hooks/usePageTracking'
 
+// GA4のpage_view送信はgtag.js自身の標準機能（config時の自動送信 + Enhanced
+// Measurementによる履歴変化の自動検知）に任せている。詳細はvite.config.tsのコメントを参照。
 function App() {
-  // ルートが変わるたびにGA4へpage_viewを送信する（本番ビルドのみ）。
-  usePageTracking()
-
   return (
     <Routes>
       {/* Header/FooterはLayoutが共通で表示し、中身だけ各ページで切り替える */}
