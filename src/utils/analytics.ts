@@ -1,9 +1,15 @@
-// GA4（Google Analytics 4）への計測。公式のgtag.jsを直接読み込む構成にしており、
-// ラッパーライブラリ（react-ga4等）は使用しない。
+// GA4（Google Analytics 4）への計測。
 //
-// 本番ビルド（import.meta.env.PROD）かつ測定ID（VITE_GA_MEASUREMENT_ID）が
-// 設定されている場合のみ動作する。開発環境（vite dev）ではスクリプト自体を
-// 読み込まないため、開発中の操作がGA4に送信されることはない。
+// gtag.js本体の読み込みとgtag('config', ...)は、vite.config.tsのプラグインが
+// 本番ビルド時のみindex.htmlに埋め込む静的<script>タグで行う（Google公式スニペットと
+// 同じ構成）。以前はここでdocument.createElementによりscriptタグを動的に追加していたが、
+// 実機検証の結果、動的追加だとgtag.js側の初期化が不安定になり2件目以降の
+// gtag('event', ...)が送信されないことが判明したため、静的タグ方式に変更した。
+//
+// このファイルはReact Router側から「今どのページを見ているか」をGA4へ伝える
+// page_view送信のみを担当する。開発環境やGA4測定ID未設定時のビルドでは
+// window.gtagがそもそも定義されない（index.htmlにタグ自体が存在しない）ため、
+// 自然にGA4へは何も送信されない。
 declare global {
   interface Window {
     dataLayer: unknown[]
@@ -11,35 +17,9 @@ declare global {
   }
 }
 
-const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID
-
-let isInitialized = false
-
-// gtag.jsスクリプトの読み込みと初期化。複数回呼ばれても2回目以降は何もしない。
-export function initGoogleAnalytics(): void {
-  if (isInitialized || !import.meta.env.PROD || !MEASUREMENT_ID) {
-    return
-  }
-  isInitialized = true
-
-  const script = document.createElement('script')
-  script.async = true
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`
-  document.head.appendChild(script)
-
-  window.dataLayer = window.dataLayer || []
-  window.gtag = function gtag(...args: unknown[]) {
-    window.dataLayer.push(args)
-  }
-  window.gtag('js', new Date())
-  // SPAのルート変更ごとにsendPageViewで明示的にpage_viewを送るため、
-  // config時点の自動page_view送信は無効にする（二重計測を防ぐため）。
-  window.gtag('config', MEASUREMENT_ID, { send_page_view: false })
-}
-
 // React RouterのルートパスをGA4にpage_viewとして送信する。
 export function sendPageView(path: string): void {
-  if (!import.meta.env.PROD || !MEASUREMENT_ID || typeof window.gtag !== 'function') {
+  if (typeof window.gtag !== 'function') {
     return
   }
   window.gtag('event', 'page_view', {
