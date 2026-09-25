@@ -1,0 +1,25 @@
+.a8-ad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.a8-ad-label {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+
+/* 468px幅のバナーがスマートフォンで横にはみ出さないよう、タグ自体は変えずに外側から縮小表示させる */
+.a8-ad-tag {
+  max-width: 100%;
+  line-height: 0;
+  text-align: center;
+}
+
+.a8-ad-tag img {
+  display: inline;
+  max-width: 100%;
+  height: auto;
+}

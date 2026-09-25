@@ -1,0 +1,9 @@
+.site-ad {
+  margin-bottom: var(--space-7);
+}
+
+@media (max-width: 600px) {
+  .site-ad {
+    margin-bottom: var(--space-5);
+  }
+}

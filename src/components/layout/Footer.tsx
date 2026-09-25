@@ -41,7 +41,7 @@ function Footer({ sources }: FooterProps) {
         )}
       </div>
       <p className="footer-disclaimer">
-        ※本サイトはポートフォリオ用の制作物です。制度の詳細や最新情報は、厚生労働省およびiDeCo公式サイト（国民年金基金連合会）でご確認ください。
+        ※制度の詳細や最新情報は、厚生労働省およびiDeCo公式サイト（国民年金基金連合会）でご確認ください。
       </p>
     </footer>
   )
