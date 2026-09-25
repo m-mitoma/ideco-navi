@@ -24,9 +24,10 @@
 
 React RouterによるSPAで4ページ構成です。各ページの下部には金融機関の選び方と広告を共通で表示しています。
 
-<p align="center">
-  <img src="./docs/site-structure/site-structure2.png" alt="サイト構成図" width="480">
-</p>
+<picture>
+  <source media="(max-width: 600px)" srcset="./docs/site-structure/site-structure2.png">
+  <img src="./docs/site-structure/site-structure3.png" alt="サイト構成図" width="880">
+</picture>
 
 ## 主な機能
 
