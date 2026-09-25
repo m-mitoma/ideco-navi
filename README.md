@@ -11,20 +11,26 @@
 
 <picture>
   <source media="(max-width: 600px)" srcset="./docs/images/top-page-sp.png">
-  <img src="./docs/images/top-page-pc.png" alt="トップページ" width="100%">
+  <img src="./docs/images/top-page-pc.png" alt="トップページ" width="50%">
+</picture>
+
+## 開発工程
+
+2026年9月20日〜9月25日の実績です（Gitのコミット履歴にもとづく）。企画・設計から実装・テスト・CI構築を経て公開後にGA4導入と広告掲載を行いました。
+
+<picture>
+  <source media="(max-width: 600px)" srcset="./docs/development-process/gantt-chart-sp.png">
+  <img src="./docs/development-process/gantt-chart-pc.png" alt="開発工程（ガントチャート）" width="50%">
 </picture>
 
 ## サイト構成
 
 React RouterによるSPAで4ページ構成です。各ページの下部には金融機関の選び方と広告を共通で表示しています。
 
-<img src="./docs/site-structure/sitemap-pc.png" alt="サイト構成図" width="100%">
-
-## 開発工程
-
-2026年9月20日〜9月25日の実績です（Gitのコミット履歴にもとづく）。企画・設計から実装・テスト・CI構築を経て公開後にGA4導入と広告掲載を行いました。
-
-<img src="./docs/development-process/gantt-chart-pc.png" alt="開発工程（ガントチャート）" width="100%">
+<picture>
+  <source media="(max-width: 600px)" srcset="./docs/site-structure/sitemap-sp.png">
+  <img src="./docs/site-structure/sitemap-pc.png" alt="サイト構成図" width="50%">
+</picture>
 
 ## 使用技術
 
