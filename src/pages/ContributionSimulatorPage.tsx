@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import PageHeroImage from '../components/common/PageHeroImage'
 import SimulatorSection from '../components/sections/SimulatorSection'
 import NoticeBox from '../components/common/NoticeBox'
+import A8MatsuiAd from '../components/common/A8MatsuiAd'
 import { useIdecoRules } from '../hooks/useIdecoRules'
 import './ContributionSimulatorPage.css'
 
@@ -39,6 +40,10 @@ function ContributionSimulatorPage() {
           </NoticeBox>
         </div>
       </section>
+
+      <div className="container cs-ad">
+        <A8MatsuiAd />
+      </div>
 
       <div className="container cs-back">
         <Link to="/retirement-deduction" className="btn btn-secondary">
