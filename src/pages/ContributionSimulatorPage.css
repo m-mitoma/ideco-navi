@@ -3,10 +3,6 @@
   margin-bottom: var(--space-7);
 }
 
-.cs-ad {
-  margin-bottom: var(--space-5);
-}
-
 .cs-back {
   padding-block: var(--space-6);
   display: flex;
