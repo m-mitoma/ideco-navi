@@ -26,8 +26,8 @@
 2026年9月20日〜9月25日の実績です（Gitのコミット履歴にもとづく）。企画・設計から実装・テスト・CI構築を経て公開後にGA4導入と広告掲載を行いました。
 
 <p align="center">
-  <a href="./docs/development-process/gantt-chart.png?raw=true" title="タップ／クリックして原寸画像を開く">
-    <img src="./docs/development-process/gantt-chart.png" alt="開発工程（ガントチャート）" width="100%">
+  <a href="./docs/development-process/gantt-chart-2.png?raw=true" title="タップ／クリックして原寸画像を開く">
+    <img src="./docs/development-process/gantt-chart-2.png" alt="開発工程（ガントチャート）" width="100%">
   </a>
 </p>
 
