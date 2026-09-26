@@ -26,7 +26,7 @@
 2026年9月20日〜9月25日の実績です（Gitのコミット履歴にもとづく）。企画・設計から実装・テスト・CI構築を経て公開後にGA4導入と広告掲載を行いました。
 
 <p align="center">
-  <a href="./docs/development-process/gantt-chart-2.png?raw=true" title="タップ／クリックして原寸画像を開く">
+  <a href="./docs/development-process/gantt-chart-2.png" title="タップ／クリックして原寸画像を開く">
     <img src="./docs/development-process/gantt-chart-2.png" alt="開発工程（ガントチャート）" width="100%">
   </a>
 </p>
@@ -36,7 +36,7 @@
 React RouterによるSPAで4ページ構成です。各ページの下部には金融機関の選び方と広告を共通で表示しています。
 
 <p align="center">
-  <a href="./docs/site-structure/sitemap.png?raw=true" title="タップ／クリックして原寸画像を開く">
+  <a href="./docs/site-structure/sitemap.png" title="タップ／クリックして原寸画像を開く">
     <img src="./docs/site-structure/sitemap.png" alt="サイト構成図" width="100%">
   </a>
 </p>
@@ -46,7 +46,7 @@ React RouterによるSPAで4ページ構成です。各ページの下部には�
 企画・設計と確認を自分が担い、Claude CodeなどのAIに実装を指示して制作しています。制作の工程ごとに、担当することと使用技術を以下にまとめています。
 
 <p align="center">
-  <a href="./docs/technology-roles/technology-roles2.png?raw=true" title="タップ／クリックして原寸画像を開く">
+  <a href="./docs/technology-roles/technology-roles2.png" title="タップ／クリックして原寸画像を開く">
     <img src="./docs/technology-roles/technology-roles2.png" alt="制作工程ごとに使用技術と役割をまとめた図。企画・設計は自分、実装は自分の指示と確認のもとAIが担当。テストはAIがコードを作成し自分が確認。公開・運用・改善は自分が担当。各工程に使用技術を併記。" width="100%">
   </a>
 </p>
