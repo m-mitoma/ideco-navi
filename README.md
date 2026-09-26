@@ -28,8 +28,8 @@
 企画・設計から実装・テスト・CI構築を経て公開後にGA4導入と広告掲載を行いました。
 
 <p align="center">
-  <a href="./docs/screenshot/gantt-chart-4.png" title="タップ／クリックして原寸画像を開く">
-    <img src="./docs/screenshot/gantt-chart-4.png" alt="開発工程（ガントチャート）" width="100%">
+  <a href="./docs/screenshot/gantt-chart-5.png" title="タップ／クリックして原寸画像を開く">
+    <img src="./docs/screenshot/gantt-chart-5.png" alt="開発工程（ガントチャート）" width="100%">
   </a>
 </p>
 
