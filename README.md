@@ -39,8 +39,8 @@ React RouterによるSPAで4ページ構成です。
 各ページの下部には金融機関の選び方と広告を共通で表示しています。
 
 <p align="center">
-  <a href="./docs/screenshot/sitemap-4.png" title="タップ／クリックして原寸画像を開く">
-    <img src="./docs/screenshot/sitemap-4.png" alt="サイト構成図" width="100%">
+  <a href="./docs/screenshot/sitemap-5.png" title="タップ／クリックして原寸画像を開く">
+    <img src="./docs/screenshot/sitemap-5.png" alt="サイト構成図" width="100%">
   </a>
 </p>
 
@@ -50,8 +50,8 @@ React RouterによるSPAで4ページ構成です。
 制作の工程ごとに、担当することと使用技術を以下にまとめています。
 
 <p align="center">
-  <a href="./docs/screenshot/technology-roles-4.png" title="タップ／クリックして原寸画像を開く">
-    <img src="./docs/screenshot/technology-roles-4.png" alt="制作工程ごとに使用技術と役割をまとめた図。企画・設計は自分、実装は自分の指示と確認のもとAIが担当。テストはAIがコードを作成し自分が確認。公開・運用・改善は自分が担当。各工程に使用技術を併記。" width="100%">
+  <a href="./docs/screenshot/technology-roles-5.png" title="タップ／クリックして原寸画像を開く">
+    <img src="./docs/screenshot/technology-roles-5.png" alt="制作工程ごとに使用技術と役割をまとめた図。企画・設計は自分、実装は自分の指示と確認のもとAIが担当。テストはAIがコードを作成し自分が確認。公開・運用・改善は自分が担当。各工程に使用技術を併記。" width="100%">
   </a>
 </p>
 
