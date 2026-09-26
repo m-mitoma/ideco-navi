@@ -11,20 +11,31 @@
 
 <p align="center">
   <picture>
-    <source media="(max-width: 600px)" srcset="./docs/images/top-page-sp.png" width="50%">
-    <img src="./docs/images/top-page-pc.png" alt="トップページ" width="100%">
+    <source media="(max-width: 600px)" srcset="./docs/images/top-page-first-view-sp.png">
+    <img src="./docs/images/top-page-first-view-pc.png" alt="トップページのファーストビュー" width="800">
   </picture>
 </p>
+
+<details>
+<summary>トップページ全体を見る</summary>
+
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset="./docs/images/top-page-sp.png">
+    <img src="./docs/images/top-page-pc.png" alt="トップページ全体" width="800">
+  </picture>
+</p>
+
+</details>
 
 ## 開発工程
 
 2026年9月20日〜9月25日の実績です（Gitのコミット履歴にもとづく）。企画・設計から実装・テスト・CI構築を経て公開後にGA4導入と広告掲載を行いました。
 
 <p align="center">
-  <picture>
-    <source media="(max-width: 600px)" srcset="./docs/development-process/gantt-chart-sp.png" width="50%">
+  <a href="./docs/development-process/gantt-chart-pc.png?raw=true" title="タップ／クリックして原寸画像を開く">
     <img src="./docs/development-process/gantt-chart-pc.png" alt="開発工程（ガントチャート）" width="100%">
-  </picture>
+  </a>
 </p>
 
 ## サイト構成
@@ -32,37 +43,20 @@
 React RouterによるSPAで4ページ構成です。各ページの下部には金融機関の選び方と広告を共通で表示しています。
 
 <p align="center">
-  <picture>
-    <source media="(max-width: 600px)" srcset="./docs/site-structure/sitemap-sp.png" width="50%">
+  <a href="./docs/site-structure/sitemap-pc.png?raw=true" title="タップ／クリックして原寸画像を開く">
     <img src="./docs/site-structure/sitemap-pc.png" alt="サイト構成図" width="100%">
-  </picture>
+  </a>
 </p>
 
-## 使用技術
+## 使用技術・制作における役割
 
-- **フロントエンド**：React／TypeScript／JavaScript／HTML／CSS／Tailwind CSS／React Router
-- **CMS**：microCMS／microcms-js-sdk（APIキーを公開しないようサーバー側の`/api/faqs`経由でFAQを取得）
-- **テスト・品質**：Vitest／React Testing Library（計算ロジック・バリデーション・UI）／ESLint／Prettier
-- **CI/CD・公開**：GitHub Actions（lint・test・buildを自動実行）／Vercel
-- **アクセス解析**：GA4
-- **開発環境**：Vite／Git／GitHub
+企画・設計と確認を自分が担い、Claude CodeなどのAIに実装を指示して制作しています。使用技術と役割分担を以下にまとめています。
 
-## 制作における役割
-
-企画・設計と確認を自分が担いClaude CodeなどのAIに実装を指示して制作しています。
-
-- **自分**
-  - 企画・要件整理（ターゲット設定・課題設定）
-  - サイト構成・コンテンツ構成・UI設計
-  - シミュレーションの仕様検討・FAQの内容設計
-  - Claude CodeなどのAIへの実装指示と実装結果の確認・修正指示
-  - 動作確認・テスト結果の確認
-  - Git管理・CI/CD・Vercelへのデプロイ
-  - 公開後の運用・改善（GA4導入・広告掲載など）
-- **AI（Claude Codeなど）**
-  - React / TypeScriptの実装・コンポーネント作成・CSS実装
-  - フォーム処理・React Routerの実装
-  - ビルドエラー等の修正・テストコード作成
+<p align="center">
+  <a href="./docs/technology-roles/technology-roles.png?raw=true" title="タップ／クリックして原寸画像を開く">
+    <img src="./docs/technology-roles/technology-roles.png" alt="使用技術と制作における役割のマインドマップ。自分が企画・設計・確認・運用を担当し、AIが実装・修正・テストコード作成を担当。技術分野はフロントエンド、CMS、テスト・品質、CI/CD・公開、アクセス解析、開発環境。" width="100%">
+  </a>
+</p>
 
 ## 情報源
 
