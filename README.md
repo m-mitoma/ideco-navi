@@ -10,17 +10,25 @@
 - 対象：iDeCoの名前は知っているものの掛金上限や企業年金との関係が分からない30〜50代の会社員
 - 本番サイト：<https://ideco-navi.vercel.app/>
 
-<details>
-<summary>トップページのスクリーンショットを見る</summary>
+## トップページ
 
-<p align="center">
-  <picture>
-    <source media="(max-width: 600px)" srcset="./docs/screenshot/top-sp.png">
-    <img src="./docs/screenshot/top-pc.png" alt="トップページ全体" width="800">
-  </picture>
-</p>
+ページ全体を上から順に3分割しています。各画像をクリックすると拡大できます。
 
-</details>
+<table>
+  <tr>
+    <th width="33%">① サイト紹介・制度概要</th>
+    <th width="33%">② 制度比較・シミュレーター</th>
+    <th width="33%">③ FAQ・金融機関の選び方</th>
+  </tr>
+  <tr>
+    <td valign="top" align="center"><a href="./docs/screenshot/top-preview-1.png"><img src="./docs/screenshot/top-preview-1.png" alt="トップページ：サイト紹介・制度概要" width="100%"></a></td>
+    <td valign="top" align="center"><a href="./docs/screenshot/top-preview-2.png"><img src="./docs/screenshot/top-preview-2.png" alt="トップページ：制度比較・シミュレーター" width="100%"></a></td>
+    <td valign="top" align="center"><a href="./docs/screenshot/top-preview-3.png"><img src="./docs/screenshot/top-preview-3.png" alt="トップページ：FAQ・金融機関の選び方" width="100%"></a></td>
+  </tr>
+</table>
+
+全体画像：[PC版](./docs/screenshot/top-pc.png) ／ [スマホ版](./docs/screenshot/top-sp.png)
+
 
 ## 開発工程
 
@@ -28,8 +36,8 @@
 企画・設計から実装・テスト・CI構築を経て公開後にGA4導入と広告掲載を行いました。
 
 <p align="center">
-  <a href="./docs/screenshot/gantt-chart-6.png" title="タップ／クリックして原寸画像を開く">
-    <img src="./docs/screenshot/gantt-chart-6.png" alt="開発工程（ガントチャート）" width="100%">
+  <a href="./docs/screenshot/gantt-chart-7.png" title="タップ／クリックして原寸画像を開く">
+    <img src="./docs/screenshot/gantt-chart-7.png" alt="開発工程（ガントチャート）" width="100%">
   </a>
 </p>
 
